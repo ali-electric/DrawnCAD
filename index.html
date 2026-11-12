@@ -67,6 +67,10 @@
 
         <!-- Top Right Actions -->
         <div class="flex items-center space-x-2">
+            <!-- Mobile Sidebar Toggle -->
+            <button onclick="toggleMobileSidebar()" class="md:hidden bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition border border-slate-600">
+                <i class="fa-solid fa-shapes text-blue-400"></i> <span>Komponen</span>
+            </button>
             <!-- Layers button -->
             <button onclick="toggleModal('layerModal')" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition border border-slate-600">
                 <i class="fa-solid fa-layer-group text-blue-400"></i> <span class="hidden sm:inline">Layers</span>
@@ -94,16 +98,21 @@
     <div class="flex-1 flex overflow-hidden relative">
 
         <!-- Left Sidebar: Component Library & IEC Symbols -->
-        <aside class="w-72 bg-slate-800/90 border-r border-slate-700 flex flex-col shrink-0 z-10 shadow-lg">
+        <aside id="leftSidebar" class="w-72 bg-slate-800/95 backdrop-blur border-r border-slate-700 flex flex-col shrink-0 z-30 shadow-2xl fixed md:static inset-y-14 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out">
             <!-- Sidebar Header / Tabs -->
             <div class="p-3 border-b border-slate-700 bg-slate-800">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
-                    <span><i class="fa-solid fa-shapes mr-1.5 text-blue-400"></i> Simbol Standar IEC / Panel</span>
-                </h2>
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center">
+                        <i class="fa-solid fa-shapes mr-1.5 text-blue-400"></i> Simbol Standar IEC / Panel
+                    </h2>
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
                 <!-- Search component -->
                 <div class="relative">
                     <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                    <input type="text" id="searchComponent" oninput="filterComponents(this.value)" placeholder="Cari komponen (MCB, Contagion...)" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                    <input type="text" id="searchComponent" oninput="filterComponents(this.value)" placeholder="Cari komponen (MCB, Kontaktor...)" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
                 </div>
             </div>
 
@@ -130,18 +139,40 @@
         <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
             
             <!-- Drawing Tool Floating Bar -->
-            <div class="absolute top-4 left-4 z-10 bg-slate-900/90 backdrop-blur border border-slate-700/80 p-1.5 rounded-xl shadow-xl flex items-center space-x-1">
-                <button onclick="setTool('select')" id="tool-select" title="Select & Move (V)" class="p-2 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-500 transition"><i class="fa-solid fa-arrow-pointer"></i></button>
-                <div class="w-[1px] h-5 bg-slate-700 mx-0.5"></div>
-                <button onclick="setTool('wire')" id="tool-wire" title="Kabel / Wiring Line (W)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-bolt"></i></button>
-                <button onclick="setTool('busbar')" id="tool-busbar" title="Busbar Utama (B)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-bars"></i></button>
-                <button onclick="setTool('cableduct')" id="tool-cableduct" title="Dak Kabel (D)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-square-full"></i></button>
-                <button onclick="setTool('terminal')" id="tool-terminal" title="Terminal Blok (T)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-th-large"></i></button>
-                <button onclick="setTool('text')" id="tool-text" title="Label / Teks (TXT)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-font"></i></button>
-                <div class="w-[1px] h-5 bg-slate-700 mx-0.5"></div>
-                <button onclick="undoCanvas()" title="Undo (Ctrl+Z)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-rotate-left"></i></button>
-                <button onclick="redoCanvas()" title="Redo (Ctrl+Y)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-rotate-right"></i></button>
-                <button onclick="clearCanvas()" title="Reset / Clear Canvas" class="p-2 rounded-lg text-red-400 hover:bg-red-500/20 text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
+            <div class="absolute top-3 left-3 right-3 sm:right-auto z-10 bg-slate-900/90 backdrop-blur border border-slate-700/80 p-1.5 rounded-xl shadow-xl flex items-center space-x-1 overflow-x-auto">
+                <button onclick="setTool('select')" id="tool-select" title="Select & Move (V)" class="p-2 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-500 transition flex items-center gap-1 shrink-0"><i class="fa-solid fa-arrow-pointer"></i><span class="hidden sm:inline">Pilih</span></button>
+                <div class="w-[1px] h-5 bg-slate-700 mx-0.5 shrink-0"></div>
+                <button onclick="setTool('wire')" id="tool-wire" title="Gambar Kabel / Wiring (W)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition flex items-center gap-1 shrink-0"><i class="fa-solid fa-bolt text-amber-400"></i><span class="hidden sm:inline">Kabel</span></button>
+                <button onclick="setTool('busbar')" id="tool-busbar" title="Gambar Busbar Utama (B)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition flex items-center gap-1 shrink-0"><i class="fa-solid fa-bars text-orange-400"></i><span class="hidden sm:inline">Busbar</span></button>
+                <button onclick="setTool('cableduct')" id="tool-cableduct" title="Gambar Dak Kabel (D)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition flex items-center gap-1 shrink-0"><i class="fa-solid fa-square-full text-cyan-400"></i><span class="hidden sm:inline">Dak Kabel</span></button>
+                <button onclick="setTool('terminal')" id="tool-terminal" title="Gambar Terminal Blok (T)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition flex items-center gap-1 shrink-0"><i class="fa-solid fa-th-large text-emerald-400"></i><span class="hidden sm:inline">Terminal</span></button>
+                <button onclick="setTool('text')" id="tool-text" title="Tambah Label / Teks (TXT)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition flex items-center gap-1 shrink-0"><i class="fa-solid fa-font text-purple-400"></i><span class="hidden sm:inline">Teks</span></button>
+                <div class="w-[1px] h-5 bg-slate-700 mx-0.5 shrink-0"></div>
+                <button onclick="toggleOrtho()" id="orthoBtn" title="Mode Garis Siku-Siku / Orthogonal (F8)" class="p-2 rounded-lg text-blue-400 bg-blue-500/10 text-xs transition shrink-0 font-mono font-bold">L-90°</button>
+                <button onclick="undoCanvas()" title="Undo (Ctrl+Z)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition shrink-0"><i class="fa-solid fa-rotate-left"></i></button>
+                <button onclick="redoCanvas()" title="Redo (Ctrl+Y)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition shrink-0"><i class="fa-solid fa-rotate-right"></i></button>
+                <button onclick="openClearConfirm()" title="Reset / Clear Canvas" class="p-2 rounded-lg text-red-400 hover:bg-red-500/20 text-xs transition shrink-0"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+
+            <!-- Drawing Sub-Options Bar (Wire Color & Thickness) -->
+            <div id="drawOptionsBar" class="hidden absolute top-16 left-3 z-10 bg-slate-900/95 backdrop-blur border border-slate-700 p-2 rounded-xl shadow-xl flex items-center space-x-3 text-xs">
+                <span class="text-slate-400 font-medium">Warna Kabel/Garis:</span>
+                <div class="flex items-center space-x-1.5">
+                    <button onclick="setDrawColor('#ef4444')" class="w-5 h-5 rounded-full bg-red-500 border-2 border-white/50 hover:scale-110 transition" title="Fasa R (Merah)"></button>
+                    <button onclick="setDrawColor('#eab308')" class="w-5 h-5 rounded-full bg-yellow-500 border-2 border-white/50 hover:scale-110 transition" title="Fasa S (Kuning)"></button>
+                    <button onclick="setDrawColor('#1e293b')" class="w-5 h-5 rounded-full bg-slate-800 border-2 border-slate-400 hover:scale-110 transition" title="Fasa T (Hitam)"></button>
+                    <button onclick="setDrawColor('#3b82f6')" class="w-5 h-5 rounded-full bg-blue-500 border-2 border-white/50 hover:scale-110 transition" title="Netral N (Biru)"></button>
+                    <button onclick="setDrawColor('#22c55e')" class="w-5 h-5 rounded-full bg-green-500 border-2 border-white/50 hover:scale-110 transition" title="Grounding PE (Hijau)"></button>
+                    <input type="color" id="customDrawColor" value="#ef4444" onchange="setDrawColor(this.value)" class="w-5 h-5 rounded cursor-pointer bg-transparent border-0">
+                </div>
+                <span class="text-slate-600">|</span>
+                <label class="text-slate-400">Ukuran:</label>
+                <select id="drawThickness" onchange="drawLineWidth = parseInt(this.value)" class="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-slate-200">
+                    <option value="2">1.5 mm² (Kontrol)</option>
+                    <option value="3" selected>2.5 mm² (Standar)</option>
+                    <option value="5">6 mm² (Power)</option>
+                    <option value="8">16 mm² (Main)</option>
+                </select>
             </div>
 
             <!-- Zoom & Viewport Controls -->
@@ -155,10 +186,10 @@
             </div>
 
             <!-- Canvas Container -->
-            <div id="canvasContainer" class="flex-1 relative overflow-hidden cursor-crosshair grid-bg-dark" 
-                 onmousedown="startPan(event)" onmousemove="panCanvas(event)" onmouseup="endPan(event)" onwheel="handleZoom(event)"
+            <div id="canvasContainer" class="flex-1 relative overflow-hidden cursor-crosshair grid-bg-dark touch-none" 
+                 onmousedown="handlePointerDown(event)" onmousemove="handlePointerMove(event)" onmouseup="handlePointerUp(event)" onwheel="handleZoom(event)"
                  ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
-                <canvas id="cadCanvas" class="absolute top-0.5 left-0.5 block"></canvas>
+                <canvas id="cadCanvas" class="absolute top-0 left-0 block"></canvas>
             </div>
 
             <!-- Bottom Status Bar -->
@@ -201,54 +232,54 @@
         <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between bg-slate-800/50">
                 <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-layer-group text-blue-400"></i> Pengaturan Layer CAD
-                </h3>
-                <button onclick="toggleModal('layerModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- Custom Text Input Modal (Replaces prompt) -->
+    <div id="textModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
+            <div class="px-5 py-3 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-100"><i class="fa-solid fa-font text-purple-400 mr-2"></i>Tambah Label / Teks CAD</h3>
+                <button onclick="toggleModal('textModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-5 space-y-3" id="layerListContainer">
-                <!-- Dynamically rendered layers -->
+            <div class="p-4 space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Isi Teks / Keterangan:</label>
+                    <input type="text" id="cadTextInput" placeholder="Contoh: R-S-T 380V / KE MOTOR 1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Ukuran Font:</label>
+                        <select id="cadTextSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+                            <option value="12">Kecil (12px)</option>
+                            <option value="16" selected>Sedang (16px)</option>
+                            <option value="22">Besar (22px)</option>
+                            <option value="28">Judul Panel (28px)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Warna Teks:</label>
+                        <input type="color" id="cadTextColor" value="#f8fafc" class="w-full h-9 rounded-lg bg-slate-900 border border-slate-700 cursor-pointer p-1">
+                    </div>
+                </div>
             </div>
-            <div class="px-5 py-3 bg-slate-900/60 border-t border-slate-700 flex justify-end">
-                <button onclick="toggleModal('layerModal')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">Simpan & Tutup</button>
+            <div class="px-4 py-3 bg-slate-900/60 border-t border-slate-700 flex justify-end space-x-2">
+                <button onclick="toggleModal('textModal')" class="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white">Batal</button>
+                <button onclick="confirmAddText()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Tambahkan</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Canvas & Theme Settings -->
-    <div id="canvasModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between bg-slate-800/50">
-                <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-amber-400"></i> Pengaturan Tampilan & Layar
-                </h3>
-                <button onclick="toggleModal('canvasModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <!-- Custom Confirm Clear Modal (Replaces confirm) -->
+    <div id="clearConfirmModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-5 text-center space-y-3">
+                <div class="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="font-bold text-base text-slate-100">Reset Lembar Kerja?</h3>
+                <p class="text-xs text-slate-400">Semua komponen, jalur kabel, dan desain di kanvas akan dihapus. Anda masih bisa menekan Undo jika berubah pikiran.</p>
             </div>
-            <div class="p-5 space-y-4 text-xs">
-                <div>
-                    <label class="block text-slate-400 mb-1.5 font-medium">Tema Background Layar:</label>
-                    <select id="themeSelect" onchange="changeCanvasTheme(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
-                        <option value="dark-grid">Dark Grid (Blue Tech)</option>
-                        <option value="dark-dot">Dark Dot Matrix</option>
-                        <option value="light-grid">Light Engineering Grid</option>
-                        <option value="pure-white">Pure White (Blueprint)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-slate-400 mb-1.5 font-medium">Ukuran Kertas Standar Panel:</label>
-                    <select id="paperSizeSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
-                        <option value="A3">A3 (420 x 297 mm) - Standard Panel</option>
-                        <option value="A4">A4 (297 x 210 mm) - Wiring Diagram</option>
-                        <option value="A2">A2 (594 x 420 mm) - Large Single Line</option>
-                        <option value="CUSTOM">Custom Canvas (Infinite)</option>
-                    </select>
-                </div>
-                <div class="flex items-center justify-between pt-2">
-                    <span class="text-slate-300">Snap to Grid (Magnetik)</span>
-                    <input type="checkbox" id="snapGrid" checked class="w-4 h-4 accent-blue-600 rounded">
-                </div>
-            </div>
-            <div class="px-5 py-3 bg-slate-900/60 border-t border-slate-700 flex justify-end">
-                <button onclick="toggleModal('canvasModal')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">Terapkan</button>
+            <div class="px-5 py-3 bg-slate-900/60 border-t border-slate-700 flex justify-end space-x-2">
+                <button onclick="toggleModal('clearConfirmModal')" class="px-4 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-700">Batal</button>
+                <button onclick="executeClearCanvas()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-semibold">Ya, Bersihkan</button>
             </div>
         </div>
     </div>
@@ -318,6 +349,16 @@
         let panX = 0, panY = 0;
         let zoom = 1;
         let gridEnabled = true;
+        let orthoMode = true; // Garis siku-siku 90 derajat standar kelistrikan
+
+        // Drawing states (Wires, Busbars, Ducts, Shapes, Texts)
+        let drawnShapes = []; // Array of { id, type, x1, y1, x2, y2, midX, midY, color, lineWidth, text, fontSize, layer }
+        let isDrawingShape = false;
+        let activeShape = null;
+        let selectedShape = null;
+        let drawColor = '#ef4444';
+        let drawLineWidth = 3;
+        let pendingTextCoords = { x: 100, y: 100 };
 
         let placedComponents = []; // Array of elements on canvas
         let selectedComponent = null;
@@ -355,13 +396,37 @@
             requestAnimationFrame(mainLoop);
         };
 
-        function resizeCanvasContainer() {
-            const container = document.getElementById('canvasContainer');
-            canvas.width = container.clientWidth * 2; // Retina sharpness
-            canvas.height = container.clientHeight * 2;
-            canvas.style.width = container.clientWidth + 'px';
-            canvas.style.height = container.clientHeight + 'px';
-            ctx.scale(2, 2);
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('leftSidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function setDrawColor(color) {
+            drawColor = color;
+            document.getElementById('customDrawColor').value = color;
+            if (selectedShape) {
+                saveHistory();
+                selectedShape.color = color;
+            }
+        }
+
+        function toggleOrtho() {
+            orthoMode = !orthoMode;
+            const btn = document.getElementById('orthoBtn');
+            if (orthoMode) {
+                btn.className = 'p-2 rounded-lg text-blue-400 bg-blue-500/10 text-xs transition shrink-0 font-mono font-bold';
+                showToast('Ortho 90° Aktif', 'Garis kabel akan otomatis membentuk sudut siku-siku.');
+            } else {
+                btn.className = 'p-2 rounded-lg text-slate-400 hover:bg-slate-800 text-xs transition shrink-0 font-mono';
+                showToast('Ortho Bebas', 'Garis kabel dapat ditarik ke segala sudut.');
+            }
+        }
+
+        function snapCoord(val) {
+            const snapEnabled = document.getElementById('snapGrid')?.checked;
+            if (!snapEnabled) return val;
+            const gridStep = 15;
+            return Math.round(val / gridStep) * gridStep;
         }
 
         // --- RENDER COMPONENT LIBRARY ---
@@ -415,6 +480,11 @@
         // --- ADD COMPONENT TO CANVAS ---
         function addComponentToCanvas(item) {
             saveHistory();
+            const container = document.getElementById('canvasContainer');
+            // Tempatkan di tengah area pandang layar saat ini
+            const centerX = snapCoord((-panX + container.clientWidth / 2) / zoom - item.width / 2);
+            const centerY = snapCoord((-panY + container.clientHeight / 2) / zoom - item.height / 2);
+
             const newComp = {
                 id: 'comp_' + Date.now() + Math.floor(Math.random()*1000),
                 type: item.symbolType,
@@ -422,16 +492,22 @@
                 tag: item.name.substring(0,3).toUpperCase() + '-' + (placedComponents.length + 1),
                 amp: item.defaultAmp || '16A',
                 brand: item.defaultBrand || 'Schneider',
-                x: 100 + (placedComponents.length * 15) % 300,
-                y: 100 + (placedComponents.length * 15) % 250,
+                x: centerX + (placedComponents.length % 5) * 15,
+                y: centerY + (placedComponents.length % 5) * 15,
                 width: item.width,
                 height: item.height,
+                rotation: 0,
                 layer: 'layer-main',
                 color: '#3b82f6'
             };
             placedComponents.push(newComp);
+            setTool('select');
             selectComponent(newComp);
-            showToast('Komponen Ditambahkan', `${item.name} berhasil ditambahkan ke lembar kerja.`);
+            // Tutup sidebar otomatis di HP setelah memilih komponen
+            if (window.innerWidth < 768) {
+                document.getElementById('leftSidebar').classList.add('-translate-x-full');
+            }
+            showToast('Komponen Ditambahkan', `${item.name} siap diposisikan.`);
             updateBOM();
         }
 
@@ -454,37 +530,170 @@
                 drawGrid(container.clientWidth, container.clientHeight);
             }
 
-            // Draw all placed components
+            // 1. Draw Cable Ducts & Busbars (Background layer elements)
+            drawnShapes.filter(s => s.type === 'cableduct' || s.type === 'busbar').forEach(shape => drawShapeEntity(shape));
+
+            // 2. Draw all placed components
             placedComponents.forEach(comp => {
                 drawIECSymbol(comp);
             });
 
+            // 3. Draw Wires, Terminals & Texts (Foreground layer elements)
+            drawnShapes.filter(s => s.type !== 'cableduct' && s.type !== 'busbar').forEach(shape => drawShapeEntity(shape));
+
+            // 4. Draw shape currently being dragged/created
+            if (isDrawingShape && activeShape) {
+                drawShapeEntity(activeShape, true);
+            }
+
             ctx.restore();
         }
 
-        function drawGrid(w, h) {
-            ctx.strokeStyle = canvasTheme.includes('dark') ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)';
-            ctx.lineWidth = 1;
-            const gridSize = 30 * zoom;
-            const startXGrid = panX % gridSize;
-            const startYGrid = panY % gridSize;
+        function drawShapeEntity(s, isPreview = false) {
+            ctx.save();
+            if (isPreview) ctx.globalAlpha = 0.8;
 
-            ctx.beginPath();
-            for (let x = startXGrid; x < w * 2; x += gridSize) {
-                ctx.moveTo((x - panX) / zoom, 0);
-                ctx.lineTo((x - panX) / zoom, h * 2);
+            const isSelected = selectedShape && selectedShape.id === s.id;
+
+            if (s.type === 'wire') {
+                ctx.strokeStyle = s.color || '#ef4444';
+                ctx.lineWidth = s.lineWidth || 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                ctx.moveTo(s.x1, s.y1);
+                if (s.ortho) {
+                    // Siku-siku 90 derajat
+                    ctx.lineTo(s.x2, s.y1);
+                    ctx.lineTo(s.x2, s.y2);
+                } else {
+                    ctx.lineTo(s.x2, s.y2);
+                }
+                ctx.stroke();
+
+                // Titik terminal / node di ujung kabel
+                ctx.fillStyle = s.color || '#ef4444';
+                ctx.beginPath();
+                ctx.arc(s.x1, s.y1, (s.lineWidth || 3) + 1.5, 0, Math.PI * 2);
+                ctx.arc(s.x2, s.y2, (s.lineWidth || 3) + 1.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (isSelected) {
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([4, 4]);
+                    ctx.strokeRect(Math.min(s.x1, s.x2) - 6, Math.min(s.y1, s.y2) - 6, Math.abs(s.x2 - s.x1) + 12, Math.abs(s.y2 - s.y1) + 12);
+                }
+            } else if (s.type === 'busbar') {
+                const x = Math.min(s.x1, s.x2);
+                const y = Math.min(s.y1, s.y2);
+                const w = Math.max(Math.abs(s.x2 - s.x1), 12);
+                const h = Math.max(Math.abs(s.y2 - s.y1), 12);
+
+                ctx.fillStyle = s.color || '#d97706'; // Warna tembaga / busbar
+                ctx.strokeStyle = isSelected ? '#38bdf8' : '#78350f';
+                ctx.lineWidth = 2;
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeRect(x, y, w, h);
+
+                // Lubang baut busbar
+                ctx.fillStyle = '#0f172a';
+                if (w > h) {
+                    for (let bx = x + 15; bx < x + w - 10; bx += 30) {
+                        ctx.beginPath();
+                        ctx.arc(bx, y + h / 2, 2.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else {
+                    for (let by = y + 15; by < y + h - 10; by += 30) {
+                        ctx.beginPath();
+                        ctx.arc(x + w / 2, by, 2.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            } else if (s.type === 'cableduct') {
+                const x = Math.min(s.x1, s.x2);
+                const y = Math.min(s.y1, s.y2);
+                const w = Math.max(Math.abs(s.x2 - s.x1), 20);
+                const h = Math.max(Math.abs(s.y2 - s.y1), 20);
+
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.25)';
+                ctx.strokeStyle = isSelected ? '#38bdf8' : '#64748b';
+                ctx.lineWidth = 1.5;
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeRect(x, y, w, h);
+
+                // Garis-garis kisi dak kabel
+                ctx.beginPath();
+                if (w >= h) {
+                    for (let dx = x + 10; dx < x + w; dx += 12) {
+                        ctx.moveTo(dx, y);
+                        ctx.lineTo(dx, y + 6);
+                        ctx.moveTo(dx, y + h - 6);
+                        ctx.lineTo(dx, y + h);
+                    }
+                } else {
+                    for (let dy = y + 10; dy < y + h; dy += 12) {
+                        ctx.moveTo(x, dy);
+                        ctx.lineTo(x + 6, dy);
+                        ctx.moveTo(x + w - 6, dy);
+                        ctx.lineTo(x + w, dy);
+                    }
+                }
+                ctx.stroke();
+            } else if (s.type === 'terminal') {
+                const x = Math.min(s.x1, s.x2);
+                const y = Math.min(s.y1, s.y2);
+                const w = Math.max(Math.abs(s.x2 - s.x1), 24);
+                const h = Math.max(Math.abs(s.y2 - s.y1), 24);
+
+                ctx.fillStyle = '#334155';
+                ctx.strokeStyle = isSelected ? '#38bdf8' : '#94a3b8';
+                ctx.lineWidth = 1.5;
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeRect(x, y, w, h);
+
+                // Sekat blok terminal
+                ctx.beginPath();
+                if (w >= h) {
+                    for (let tx = x + 12; tx < x + w; tx += 12) {
+                        ctx.moveTo(tx, y);
+                        ctx.lineTo(tx, y + h);
+                    }
+                } else {
+                    for (let ty = y + 12; ty < y + h; ty += 12) {
+                        ctx.moveTo(x, ty);
+                        ctx.lineTo(x + w, ty);
+                    }
+                }
+                ctx.stroke();
+            } else if (s.type === 'text') {
+                ctx.fillStyle = s.color || '#f8fafc';
+                ctx.font = `bold ${s.fontSize || 16}px Inter, sans-serif`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText(s.text || 'Label', s.x1, s.y1);
+
+                if (isSelected) {
+                    const metrics = ctx.measureText(s.text || 'Label');
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([3, 3]);
+                    ctx.strokeRect(s.x1 - 4, s.y1 - 4, metrics.width + 8, (s.fontSize || 16) + 8);
+                }
             }
-            for (let y = startYGrid; y < h * 2; y += gridSize) {
-                ctx.moveTo(0, (y - panY) / zoom);
-                ctx.lineTo(w * 2, (y - panY) / zoom);
-            }
-            ctx.stroke();
+
+            ctx.restore();
         }
-
         // --- DRAW IEC SYMBOLS ON CANVAS ---
         function drawIECSymbol(comp) {
             ctx.save();
-            ctx.translate(comp.x, comp.y);
+            ctx.translate(comp.x + comp.width / 2, comp.y + comp.height / 2);
+            if (comp.rotation) {
+                ctx.rotate((comp.rotation * Math.PI) / 180);
+            }
+            ctx.translate(-comp.width / 2, -comp.height / 2);
 
             // Selection glow / box
             if (selectedComponent && selectedComponent.id === comp.id) {
@@ -500,75 +709,246 @@
             ctx.strokeStyle = selectedComponent && selectedComponent.id === comp.id ? '#60a5fa' : '#475569';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.roundRect(0, 0, comp.width, comp.height, 6);
+            ctx.roundRect(0, 0, comp.width, comp.height, 4);
             ctx.fill();
             ctx.stroke();
-
-            // Inner graphic based on type
-            ctx.fillStyle = canvasTheme.includes('dark') ? '#94a3b8' : '#334155';
-            ctx.font = '10px Inter, sans-serif';
-            ctx.textAlign = 'center';
 
             // Top Tag / Label
             ctx.fillStyle = '#60a5fa';
             ctx.font = 'bold 10px Inter, sans-serif';
-            ctx.fillText(comp.tag, comp.width / 2, -10);
+            ctx.textAlign = 'center';
+            ctx.fillText(comp.tag, comp.width / 2, -8);
 
             // Bottom Brand & Amp
-            ctx.fillStyle = '#94a3b8';
+            ctx.fillStyle = canvasTheme.includes('dark') ? '#94a3b8' : '#475569';
             ctx.font = '9px Inter, sans-serif';
-            ctx.fillText(`${comp.brand} • ${comp.amp}`, comp.width / 2, comp.height + 14);
+            ctx.fillText(`${comp.brand} • ${comp.amp}`, comp.width / 2, comp.height + 13);
 
             // Specific IEC Symbol sketches inside box
-            ctx.strokeStyle = canvasTheme.includes('dark') ? '#38bdf8' : '#2563eb';
-            ctx.lineWidth = 2;
+            const strokeMain = canvasTheme.includes('dark') ? '#38bdf8' : '#1d4ed8';
+            ctx.strokeStyle = strokeMain;
+            ctx.fillStyle = strokeMain;
+            ctx.lineWidth = 1.8;
 
-            if (comp.type === 'mcb1' || comp.type === 'mcb3') {
-                // MCB Symbol (Switch contact with thermal/magnetic release)
+            const w = comp.width;
+            const h = comp.height;
+
+            if (comp.type === 'mcb1') {
+                // Terminal atas & bawah
+                drawScrewTerminal(w / 2, 8);
+                drawScrewTerminal(w / 2, h - 8);
+                // Simbol saklar MCB IEC
                 ctx.beginPath();
-                ctx.moveTo(comp.width/2, 10);
-                ctx.lineTo(comp.width/2, comp.height - 10);
+                ctx.moveTo(w / 2, 12);
+                ctx.lineTo(w / 2, h * 0.35);
+                ctx.lineTo(w / 2 - 8, h * 0.62);
+                ctx.moveTo(w / 2, h * 0.65);
+                ctx.lineTo(w / 2, h - 12);
                 ctx.stroke();
-                // Toggle handle
+                // Tuas toggle
                 ctx.fillStyle = '#ef4444';
-                ctx.fillRect(comp.width/2 - 6, comp.height/2 - 8, 12, 16);
+                ctx.fillRect(w / 2 - 5, h / 2 - 4, 10, 8);
+            } else if (comp.type === 'mcb3') {
+                const cols = [w * 0.22, w * 0.5, w * 0.78];
+                cols.forEach(cx => {
+                    drawScrewTerminal(cx, 8);
+                    drawScrewTerminal(cx, h - 8);
+                    ctx.beginPath();
+                    ctx.moveTo(cx, 12);
+                    ctx.lineTo(cx, h * 0.35);
+                    ctx.lineTo(cx - 6, h * 0.62);
+                    ctx.moveTo(cx, h * 0.65);
+                    ctx.lineTo(cx, h - 12);
+                    ctx.stroke();
+                });
+                // Link bar 3 fasa
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(w * 0.15, h / 2 - 4, w * 0.7, 8);
+            } else if (comp.type === 'mccb' || comp.type === 'acb') {
+                const cols = [w * 0.25, w * 0.5, w * 0.75];
+                cols.forEach(cx => {
+                    drawScrewTerminal(cx, 10);
+                    drawScrewTerminal(cx, h - 10);
+                    ctx.beginPath();
+                    ctx.moveTo(cx, 14);
+                    ctx.lineTo(cx, h - 14);
+                    ctx.stroke();
+                });
+                ctx.fillStyle = comp.type === 'acb' ? '#f59e0b' : '#3b82f6';
+                ctx.fillRect(10, h * 0.35, w - 20, h * 0.3);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px Inter, sans-serif';
+                ctx.fillText(comp.type.toUpperCase(), w / 2, h / 2 + 4);
             } else if (comp.type === 'contactor') {
-                // Contactor coil box & contacts
-                ctx.strokeRect(10, 15, comp.width - 20, comp.height - 30);
-                ctx.fillText('A1-A2', comp.width/2, comp.height/2 + 4);
-            } else if (comp.type === 'pilot') {
-                // Pilot lamp circle
+                const cols = [w * 0.2, w * 0.42, w * 0.64, w * 0.84];
+                cols.forEach((cx, idx) => {
+                    drawScrewTerminal(cx, 8);
+                    drawScrewTerminal(cx, h - 8);
+                });
+                ctx.strokeRect(10, 22, w - 20, h - 44);
+                ctx.font = 'bold 9px Inter, sans-serif';
+                ctx.fillText('L1 L2 L3 NO', w / 2, 34);
+                ctx.fillText('A1 - A2', w / 2, h / 2 + 4);
+                ctx.fillText('T1 T2 T3 NO', w / 2, h - 26);
+            } else if (comp.type === 'tor') {
+                ctx.strokeRect(8, 12, w - 16, h - 24);
+                // Simbol elemen pemanas zigzag
                 ctx.beginPath();
-                ctx.arc(comp.width/2, comp.height/2, 14, 0, Math.PI * 2);
+                ctx.moveTo(w * 0.25, 20);
+                ctx.lineTo(w * 0.25, h - 20);
+                ctx.moveTo(w * 0.5, 20);
+                ctx.lineTo(w * 0.5, h - 20);
+                ctx.moveTo(w * 0.75, 20);
+                ctx.lineTo(w * 0.75, h - 20);
+                ctx.stroke();
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(w / 2 - 12, h / 2 - 6, 24, 12);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 8px sans-serif';
+                ctx.fillText('TOR', w / 2, h / 2 + 3);
+            } else if (comp.type === 'relay' || comp.type === 'timer') {
+                ctx.strokeRect(8, 10, w - 16, h - 20);
+                // Simbol koil IEC (persegi panjang dengan garis diagonal untuk timer)
+                ctx.strokeRect(w / 2 - 12, h / 2 - 10, 24, 20);
+                if (comp.type === 'timer') {
+                    ctx.beginPath();
+                    ctx.moveTo(w / 2 - 12, h / 2 - 10);
+                    ctx.lineTo(w / 2 + 12, h / 2 + 10);
+                    ctx.stroke();
+                }
+                ctx.font = 'bold 8px sans-serif';
+                ctx.fillText(comp.type === 'timer' ? 'KT' : 'KA', w / 2, 20);
+            } else if (comp.type === 'fuse') {
+                drawScrewTerminal(w / 2, 8);
+                drawScrewTerminal(w / 2, h - 8);
+                ctx.beginPath();
+                ctx.moveTo(w / 2, 10);
+                ctx.lineTo(w / 2, h - 10);
+                ctx.stroke();
+                ctx.strokeRect(w / 2 - 6, 20, 12, h - 40);
+            } else if (comp.type === 'cos' || comp.type === 'selector') {
+                ctx.beginPath();
+                ctx.arc(w / 2, h / 2, Math.min(w, h) * 0.34, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(w / 2 - 10, h / 2 + 10);
+                ctx.lineTo(w / 2 + 10, h / 2 - 10);
+                ctx.stroke();
+                ctx.font = '7px sans-serif';
+                ctx.fillText('1 - 0 - 2', w / 2, h - 6);
+            } else if (comp.type === 'pilot') {
+                ctx.beginPath();
+                ctx.arc(w / 2, h / 2, 14, 0, Math.PI * 2);
                 ctx.fillStyle = '#22c55e';
                 ctx.fill();
                 ctx.stroke();
-            } else if (comp.type === 'emergency') {
-                // Mushroom emergency button
+                // Simbol X lampu IEC
+                ctx.strokeStyle = '#0f172a';
                 ctx.beginPath();
-                ctx.arc(comp.width/2, comp.height/2, 18, 0, Math.PI * 2);
+                ctx.moveTo(w / 2 - 9, h / 2 - 9);
+                ctx.lineTo(w / 2 + 9, h / 2 + 9);
+                ctx.moveTo(w / 2 + 9, h / 2 - 9);
+                ctx.lineTo(w / 2 - 9, h / 2 + 9);
+                ctx.stroke();
+            } else if (comp.type === 'btn_on' || comp.type === 'btn_off') {
+                ctx.beginPath();
+                ctx.arc(w / 2, h / 2, 14, 0, Math.PI * 2);
+                ctx.fillStyle = comp.type === 'btn_on' ? '#16a34a' : '#dc2626';
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 8px sans-serif';
+                ctx.fillText(comp.type === 'btn_on' ? 'ON' : 'OFF', w / 2, h / 2 + 3);
+            } else if (comp.type === 'btn_onoff') {
+                ctx.beginPath();
+                ctx.arc(w / 2, h * 0.32, 11, 0, Math.PI * 2);
+                ctx.fillStyle = '#16a34a';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(w / 2, h * 0.68, 11, 0, Math.PI * 2);
+                ctx.fillStyle = '#dc2626';
+                ctx.fill();
+            } else if (comp.type === 'emergency') {
+                ctx.fillStyle = '#facc15';
+                ctx.fillRect(4, 4, w - 8, h - 8);
+                ctx.beginPath();
+                ctx.arc(w / 2, h / 2, 18, 0, Math.PI * 2);
                 ctx.fillStyle = '#dc2626';
                 ctx.fill();
                 ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 7px sans-serif';
+                ctx.fillText('STOP', w / 2, h / 2 + 3);
+            } else if (comp.type === 'meter') {
+                ctx.strokeRect(8, 8, w - 16, h - 16);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(14, 14, w - 28, h * 0.45);
+                ctx.fillStyle = '#22c55e';
+                ctx.font = 'bold 11px monospace';
+                ctx.fillText('380.0 V', w / 2, 34);
+                ctx.fillStyle = strokeMain;
+                ctx.font = '8px sans-serif';
+                ctx.fillText('POWER METER', w / 2, h - 14);
             } else {
-                // Generic electrical block icon
-                ctx.strokeRect(10, 10, comp.width - 20, comp.height - 20);
-                ctx.fillText(comp.type.toUpperCase(), comp.width/2, comp.height/2 + 4);
+                // Busbar, Dak Kabel, Terminal, Kabel komponen
+                ctx.strokeRect(6, 6, w - 12, h - 12);
+                ctx.font = 'bold 9px Inter, sans-serif';
+                ctx.fillText(comp.name.toUpperCase(), w / 2, h / 2 + 3);
             }
 
             ctx.restore();
         }
 
+        function drawScrewTerminal(tx, ty) {
+            ctx.save();
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.arc(tx, ty, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
         // --- MOUSE & INTERACTION HANDLING ---
-        function startPan(e) {
+        function handlePointerDown(e) {
+            if (e.button !== 0) return; // Hanya klik kiri
             const rect = canvas.getBoundingClientRect();
             const mouseX = (e.clientX - rect.left);
             const mouseY = (e.clientY - rect.top);
 
             const worldX = (mouseX - panX) / zoom;
             const worldY = (mouseY - panY) / zoom;
+            const snappedX = snapCoord(worldX);
+            const snappedY = snapCoord(worldY);
 
-            // Check if clicking on a component
+            // Jika sedang menggunakan alat gambar (Kabel, Busbar, Dak Kabel, Terminal)
+            if (['wire', 'busbar', 'cableduct', 'terminal'].includes(currentTool)) {
+                isDrawingShape = true;
+                activeShape = {
+                    id: 'shape_' + Date.now(),
+                    type: currentTool,
+                    x1: snappedX,
+                    y1: snappedY,
+                    x2: snappedX,
+                    y2: snappedY,
+                    ortho: orthoMode,
+                    color: currentTool === 'busbar' ? '#d97706' : drawColor,
+                    lineWidth: drawLineWidth,
+                    layer: 'layer-main'
+                };
+                return;
+            }
+
+            // Jika alat Teks dipilih
+            if (currentTool === 'text') {
+                pendingTextCoords = { x: snappedX, y: snappedY };
+                document.getElementById('cadTextInput').value = '';
+                toggleModal('textModal');
+                setTimeout(() => document.getElementById('cadTextInput').focus(), 100);
+                return;
+            }
+
+            // Mode Select & Move
+            // 1. Cek klik pada komponen IEC
             let clickedComp = null;
             for (let i = placedComponents.length - 1; i >= 0; i--) {
                 const c = placedComponents[i];
@@ -579,42 +959,66 @@
             }
 
             if (clickedComp) {
+                selectedShape = null;
                 selectComponent(clickedComp);
-                if (currentTool === 'select') {
-                    isDraggingComponent = true;
-                    dragOffsetX = worldX - clickedComp.x;
-                    dragOffsetY = worldY - clickedComp.y;
-                }
-            } else {
-                if (currentTool === 'select') {
-                    selectComponent(null);
-                    isPanning = true;
-                    startX = e.clientX - panX;
-                    startY = e.clientY - panY;
-                }
+                isDraggingComponent = true;
+                dragOffsetX = worldX - clickedComp.x;
+                dragOffsetY = worldY - clickedComp.y;
+                return;
             }
+
+            // 2. Cek klik pada garis/kabel/busbar/teks
+            let clickedShape = findShapeAt(worldX, worldY);
+            if (clickedShape) {
+                selectComponent(null);
+                selectedShape = clickedShape;
+                showShapeInspector(clickedShape);
+                return;
+            }
+
+            // 3. Klik area kosong -> Pan Kanvas
+            selectComponent(null);
+            selectedShape = null;
+            isPanning = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
         }
 
-        function panCanvas(e) {
+        function handlePointerMove(e) {
             const rect = canvas.getBoundingClientRect();
             const mouseX = (e.clientX - rect.left);
             const mouseY = (e.clientY - rect.top);
 
             const worldX = (mouseX - panX) / zoom;
             const worldY = (mouseY - panY) / zoom;
+            const snappedX = snapCoord(worldX);
+            const snappedY = snapCoord(worldY);
 
-            document.getElementById('statusCoords').innerText = `X: ${Math.round(worldX)}, Y: ${Math.round(worldY)}`;
+            document.getElementById('statusCoords').innerText = `X: ${Math.round(snappedX)}, Y: ${Math.round(snappedY)}`;
 
-            if (isDraggingComponent && selectedComponent) {
-                selectedComponent.x = worldX - dragOffsetX;
-                selectedComponent.y = worldY - dragOffsetY;
+            if (isDrawingShape && activeShape) {
+                activeShape.x2 = snappedX;
+                activeShape.y2 = snappedY;
+                activeShape.ortho = orthoMode;
+            } else if (isDraggingComponent && selectedComponent) {
+                selectedComponent.x = snapCoord(worldX - dragOffsetX);
+                selectedComponent.y = snapCoord(worldY - dragOffsetY);
             } else if (isPanning) {
                 panX = e.clientX - startX;
                 panY = e.clientY - startY;
             }
         }
 
-        function endPan() {
+        function handlePointerUp() {
+            if (isDrawingShape && activeShape) {
+                const dist = Math.hypot(activeShape.x2 - activeShape.x1, activeShape.y2 - activeShape.y1);
+                if (dist > 5) {
+                    saveHistory();
+                    drawnShapes.push(activeShape);
+                }
+                isDrawingShape = false;
+                activeShape = null;
+            }
             if (isDraggingComponent) {
                 saveHistory();
             }
@@ -622,7 +1026,45 @@
             isDraggingComponent = false;
         }
 
-        // --- MOBILE TOUCH GESTURES (PINCH TO ZOOM & PAN) ---
+        function findShapeAt(wx, wy) {
+            for (let i = drawnShapes.length - 1; i >= 0; i--) {
+                const s = drawnShapes[i];
+                if (s.type === 'text') {
+                    if (wx >= s.x1 - 5 && wx <= s.x1 + 120 && wy >= s.y1 - 5 && wy <= s.y1 + 25) return s;
+                } else {
+                    const minX = Math.min(s.x1, s.x2) - 8;
+                    const maxX = Math.max(s.x1, s.x2) + 8;
+                    const minY = Math.min(s.y1, s.y2) - 8;
+                    const maxY = Math.max(s.y1, s.y2) + 8;
+                    if (wx >= minX && wx <= maxX && wy >= minY && wy <= maxY) return s;
+                }
+            }
+            return null;
+        }
+
+        function confirmAddText() {
+            const txt = document.getElementById('cadTextInput').value.trim();
+            if (!txt) {
+                toggleModal('textModal');
+                return;
+            }
+            saveHistory();
+            drawnShapes.push({
+                id: 'text_' + Date.now(),
+                type: 'text',
+                x1: pendingTextCoords.x,
+                y1: pendingTextCoords.y,
+                text: txt,
+                fontSize: parseInt(document.getElementById('cadTextSize').value),
+                color: document.getElementById('cadTextColor').value,
+                layer: 'layer-text'
+            });
+            toggleModal('textModal');
+            setTool('select');
+            showToast('Teks Ditambahkan', `Label "${txt}" ditempatkan pada gambar.`);
+        }
+
+        // --- MOBILE TOUCH GESTURES (DRAWING, PINCH TO ZOOM & PAN) ---
         let touchStartDist = 0;
         let lastTouchX = 0;
         let lastTouchY = 0;
@@ -636,6 +1078,32 @@
 
                 const worldX = (touchX - panX) / zoom;
                 const worldY = (touchY - panY) / zoom;
+                const snappedX = snapCoord(worldX);
+                const snappedY = snapCoord(worldY);
+
+                if (['wire', 'busbar', 'cableduct', 'terminal'].includes(currentTool)) {
+                    isDrawingShape = true;
+                    activeShape = {
+                        id: 'shape_' + Date.now(),
+                        type: currentTool,
+                        x1: snappedX,
+                        y1: snappedY,
+                        x2: snappedX,
+                        y2: snappedY,
+                        ortho: orthoMode,
+                        color: currentTool === 'busbar' ? '#d97706' : drawColor,
+                        lineWidth: drawLineWidth,
+                        layer: 'layer-main'
+                    };
+                    return;
+                }
+
+                if (currentTool === 'text') {
+                    pendingTextCoords = { x: snappedX, y: snappedY };
+                    document.getElementById('cadTextInput').value = '';
+                    toggleModal('textModal');
+                    return;
+                }
 
                 let clickedComp = null;
                 for (let i = placedComponents.length - 1; i >= 0; i--) {
@@ -647,19 +1115,30 @@
                 }
 
                 if (clickedComp) {
+                    selectedShape = null;
                     selectComponent(clickedComp);
                     isDraggingComponent = true;
                     dragOffsetX = worldX - clickedComp.x;
                     dragOffsetY = worldY - clickedComp.y;
                 } else {
-                    selectComponent(null);
-                    isPanning = true;
-                    lastTouchX = touch.clientX;
-                    lastTouchY = touch.clientY;
+                    let clickedShape = findShapeAt(worldX, worldY);
+                    if (clickedShape) {
+                        selectComponent(null);
+                        selectedShape = clickedShape;
+                        showShapeInspector(clickedShape);
+                    } else {
+                        selectComponent(null);
+                        selectedShape = null;
+                        isPanning = true;
+                        lastTouchX = touch.clientX;
+                        lastTouchY = touch.clientY;
+                    }
                 }
             } else if (e.touches.length === 2) {
                 isPanning = false;
                 isDraggingComponent = false;
+                isDrawingShape = false;
+                activeShape = null;
                 touchStartDist = Math.hypot(
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
@@ -675,12 +1154,18 @@
                 const touchY = touch.clientY - rect.top;
                 const worldX = (touchX - panX) / zoom;
                 const worldY = (touchY - panY) / zoom;
+                const snappedX = snapCoord(worldX);
+                const snappedY = snapCoord(worldY);
 
-                document.getElementById('statusCoords').innerText = `X: ${Math.round(worldX)}, Y: ${Math.round(worldY)}`;
+                document.getElementById('statusCoords').innerText = `X: ${Math.round(snappedX)}, Y: ${Math.round(snappedY)}`;
 
-                if (isDraggingComponent && selectedComponent) {
-                    selectedComponent.x = worldX - dragOffsetX;
-                    selectedComponent.y = worldY - dragOffsetY;
+                if (isDrawingShape && activeShape) {
+                    activeShape.x2 = snappedX;
+                    activeShape.y2 = snappedY;
+                    activeShape.ortho = orthoMode;
+                } else if (isDraggingComponent && selectedComponent) {
+                    selectedComponent.x = snapCoord(worldX - dragOffsetX);
+                    selectedComponent.y = snapCoord(worldY - dragOffsetY);
                 } else if (isPanning) {
                     const dx = touch.clientX - lastTouchX;
                     const dy = touch.clientY - lastTouchY;
@@ -704,6 +1189,15 @@
         }
 
         function handleTouchEnd(e) {
+            if (isDrawingShape && activeShape) {
+                const dist = Math.hypot(activeShape.x2 - activeShape.x1, activeShape.y2 - activeShape.y1);
+                if (dist > 5) {
+                    saveHistory();
+                    drawnShapes.push(activeShape);
+                }
+                isDrawingShape = false;
+                activeShape = null;
+            }
             if (isDraggingComponent) {
                 saveHistory();
             }
@@ -750,23 +1244,30 @@
         // --- TOOL SELECTION ---
         function setTool(toolName) {
             currentTool = toolName;
+            const drawOptionsBar = document.getElementById('drawOptionsBar');
+            if (['wire', 'busbar'].includes(toolName)) {
+                drawOptionsBar.classList.remove('hidden');
+            } else {
+                drawOptionsBar.classList.add('hidden');
+            }
+
             ['select', 'wire', 'busbar', 'cableduct', 'terminal', 'text'].forEach(t => {
                 const btn = document.getElementById('tool-' + t);
                 if (btn) {
                     if (t === toolName) {
-                        btn.className = 'p-2 rounded-lg bg-blue-600 text-white text-xs transition';
+                        btn.className = 'p-2 rounded-lg bg-blue-600 text-white text-xs transition flex items-center gap-1 shrink-0';
                     } else {
-                        btn.className = 'p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition';
+                        btn.className = 'p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition flex items-center gap-1 shrink-0';
                     }
                 }
             });
             const toolNamesMap = {
                 select: 'Select & Move',
-                wire: 'Wiring Cable Line',
-                busbar: 'Busbar Utama',
-                cableduct: 'Dak Kabel',
-                terminal: 'Terminal Blok',
-                text: 'Label / Teks'
+                wire: 'Gambar Kabel (Tarik di layar)',
+                busbar: 'Gambar Busbar (Tarik di layar)',
+                cableduct: 'Gambar Dak Kabel (Tarik kotak)',
+                terminal: 'Gambar Terminal Blok (Tarik kotak)',
+                text: 'Tambah Teks (Klik di layar)'
             };
             document.getElementById('statusTool').innerText = `Tool: ${toolNamesMap[toolName] || toolName}`;
         }
@@ -783,6 +1284,10 @@
             }
 
             inspector.classList.remove('hidden');
+            // Buka sidebar di mobile jika user ingin mengatur properti
+            if (window.innerWidth < 768) {
+                document.getElementById('leftSidebar').classList.remove('-translate-x-full');
+            }
 
             let brandOptions = availableBrands.map(b => `<option value="${b}" ${comp.brand === b ? 'selected' : ''}>${b}</option>`).join('');
             let ampOptions = availableAmps.map(a => `<option value="${a}" ${comp.amp === a ? 'selected' : ''}>${a}</option>`).join('');
@@ -792,19 +1297,32 @@
                     <label class="block text-slate-400 mb-1">Tag / Kode:</label>
                     <input type="text" value="${comp.tag}" oninput="updateCompProperty('tag', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
                 </div>
-                <div>
-                    <label class="block text-slate-400 mb-1">Kapasitas (Amper/Ukuran):</label>
-                    <select onchange="updateCompProperty('amp', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
-                        ${ampOptions}
-                    </select>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Kapasitas:</label>
+                        <select onchange="updateCompProperty('amp', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+                            ${ampOptions}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Merek:</label>
+                        <select onchange="updateCompProperty('brand', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+                            ${brandOptions}
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-slate-400 mb-1">Merek Komponen:</label>
-                    <select onchange="updateCompProperty('brand', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
-                        ${brandOptions}
-                    </select>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Lebar (px):</label>
+                        <input type="number" value="${comp.width}" min="20" max="400" oninput="updateCompProperty('width', parseInt(this.value) || 40)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Tinggi (px):</label>
+                        <input type="number" value="${comp.height}" min="20" max="400" oninput="updateCompProperty('height', parseInt(this.value) || 40)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+                    </div>
                 </div>
-                <div class="pt-2 flex gap-2">
+                <div class="pt-2 flex gap-1.5">
+                    <button onclick="rotateSelected()" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded text-xs transition" title="Putar 90°"><i class="fa-solid fa-rotate-right"></i></button>
                     <button onclick="duplicateSelected()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded text-xs transition"><i class="fa-solid fa-copy mr-1"></i> Duplikat</button>
                     <button onclick="deleteSelected()" class="flex-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 py-1.5 rounded text-xs transition"><i class="fa-solid fa-trash mr-1"></i> Hapus</button>
                 </div>
@@ -812,8 +1330,32 @@
             updateBOM();
         }
 
+        function showShapeInspector(shape) {
+            const inspector = document.getElementById('inspectorPanel');
+            const content = document.getElementById('inspectorContent');
+            inspector.classList.remove('hidden');
+
+            content.innerHTML = `
+                <div class="p-2 bg-slate-800 rounded border border-slate-700 text-slate-300">
+                    Objek Terpilih: <strong class="text-blue-400 uppercase">${shape.type}</strong>
+                </div>
+                <div class="pt-2">
+                    <button onclick="deleteSelectedShape()" class="w-full bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 py-1.5 rounded text-xs transition">
+                        <i class="fa-solid fa-trash mr-1"></i> Hapus Garis / Objek Ini
+                    </button>
+                </div>
+            `;
+        }
+
+        function rotateSelected() {
+            if (!selectedComponent) return;
+            saveHistory();
+            selectedComponent.rotation = ((selectedComponent.rotation || 0) + 90) % 360;
+        }
+
         function clearSelection() {
             selectedComponent = null;
+            selectedShape = null;
             document.getElementById('inspectorPanel').classList.add('hidden');
         }
 
@@ -841,12 +1383,38 @@
         }
 
         function deleteSelected() {
+            if (selectedShape) {
+                deleteSelectedShape();
+                return;
+            }
             if (!selectedComponent) return;
             saveHistory();
             placedComponents = placedComponents.filter(c => c.id !== selectedComponent.id);
             clearSelection();
             updateBOM();
             showToast('Komponen Dihapus', 'Komponen dihapus dari lembar kerja.');
+        }
+
+        function deleteSelectedShape() {
+            if (!selectedShape) return;
+            saveHistory();
+            drawnShapes = drawnShapes.filter(s => s.id !== selectedShape.id);
+            clearSelection();
+            showToast('Objek Dihapus', 'Garis/objek dihapus dari lembar kerja.');
+        }
+
+        function openClearConfirm() {
+            toggleModal('clearConfirmModal');
+        }
+
+        function executeClearCanvas() {
+            saveHistory();
+            placedComponents = [];
+            drawnShapes = [];
+            clearSelection();
+            updateBOM();
+            toggleModal('clearConfirmModal');
+            showToast('Canvas Direset', 'Semua komponen dan garis dibersihkan.');
         }
 
         function clearCanvas() {
@@ -929,13 +1497,25 @@
                 showToast('Export PNG Berhasil', 'Gambar resolusi tinggi berhasil diunduh.');
             } else if (format === 'svg') {
                 // SVG Vector Export
-                let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" style="background:#0f172a;">`;
+                let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" style="background:#0f172a;">`;
                 svgContent += `<g transform="translate(${panX}, ${panY}) scale(${zoom})">`;
+                drawnShapes.forEach(s => {
+                    if (s.type === 'wire') {
+                        const d = s.ortho ? `M ${s.x1} ${s.y1} L ${s.x2} ${s.y1} L ${s.x2} ${s.y2}` : `M ${s.x1} ${s.y1} L ${s.x2} ${s.y2}`;
+                        svgContent += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.lineWidth || 3}" stroke-linecap="round" stroke-linejoin="round"/>`;
+                    } else if (s.type === 'text') {
+                        svgContent += `<text x="${s.x1}" y="${s.y1 + 14}" fill="${s.color}" font-family="sans-serif" font-size="${s.fontSize || 16}" font-weight="bold">${s.text}</text>`;
+                    } else {
+                        const x = Math.min(s.x1, s.x2), y = Math.min(s.y1, s.y2);
+                        const w = Math.max(Math.abs(s.x2 - s.x1), 15), h = Math.max(Math.abs(s.y2 - s.y1), 15);
+                        svgContent += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="rgba(217,119,6,0.4)" stroke="#94a3b8" stroke-width="1.5"/>`;
+                    }
+                });
                 placedComponents.forEach(c => {
-                    svgContent += `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>`;
-                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y - 8}" fill="#60a5fa" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold">${c.tag}</text>`;
-                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y + c.height/2 + 4}" fill="#ffffff" font-family="sans-serif" font-size="11" text-anchor="middle">${c.name}</text>`;
-                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y + c.height + 15}" fill="#94a3b8" font-family="sans-serif" font-size="9" text-anchor="middle">${c.brand} • ${c.amp}</text>`;
+                    svgContent += `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="4" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>`;
+                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y - 8}" fill="#60a5fa" font-family="sans-serif" font-size="11" text-anchor="middle" font-weight="bold">${c.tag}</text>`;
+                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y + c.height/2 + 4}" fill="#ffffff" font-family="sans-serif" font-size="10" text-anchor="middle">${c.name}</text>`;
+                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y + c.height + 14}" fill="#94a3b8" font-family="sans-serif" font-size="9" text-anchor="middle">${c.brand} • ${c.amp}</text>`;
                 });
                 svgContent += `</g></svg>`;
 
@@ -947,10 +1527,26 @@
                 a.click();
                 showToast('Export SVG Berhasil', 'File vector SVG berhasil diunduh.');
             } else if (format === 'dxf') {
-                // AutoCAD DXF format simulation
+                // AutoCAD DXF format export (Lines + Rectangles + Text)
                 let dxfContent = `0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nTABLES\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
+                drawnShapes.forEach(s => {
+                    if (s.type === 'wire') {
+                        if (s.ortho) {
+                            dxfContent += `0\nLINE\n8\n${s.layer}\n10\n${s.x1}\n20\n${-s.y1}\n11\n${s.x2}\n21\n${-s.y1}\n`;
+                            dxfContent += `0\nLINE\n8\n${s.layer}\n10\n${s.x2}\n20\n${-s.y1}\n11\n${s.x2}\n21\n${-s.y2}\n`;
+                        } else {
+                            dxfContent += `0\nLINE\n8\n${s.layer}\n10\n${s.x1}\n20\n${-s.y1}\n11\n${s.x2}\n21\n${-s.y2}\n`;
+                        }
+                    } else if (s.type === 'text') {
+                        dxfContent += `0\nTEXT\n8\n${s.layer}\n10\n${s.x1}\n20\n${-s.y1}\n40\n${s.fontSize || 14}\n1\n${s.text}\n`;
+                    }
+                });
                 placedComponents.forEach(c => {
-                    dxfContent += `0\nRECT\n8\n${c.layer}\n10\n${c.x}\n20\n${c.y}\n11\n${c.x + c.width}\n21\n${c.y + c.height}\n`;
+                    dxfContent += `0\nLINE\n8\n${c.layer}\n10\n${c.x}\n20\n${-c.y}\n11\n${c.x + c.width}\n21\n${-c.y}\n`;
+                    dxfContent += `0\nLINE\n8\n${c.layer}\n10\n${c.x + c.width}\n20\n${-c.y}\n11\n${c.x + c.width}\n21\n${-(c.y + c.height)}\n`;
+                    dxfContent += `0\nLINE\n8\n${c.layer}\n10\n${c.x + c.width}\n20\n${-(c.y + c.height)}\n11\n${c.x}\n21\n${-(c.y + c.height)}\n`;
+                    dxfContent += `0\nLINE\n8\n${c.layer}\n10\n${c.x}\n20\n${-(c.y + c.height)}\n11\n${c.x}\n21\n${-c.y}\n`;
+                    dxfContent += `0\nTEXT\n8\n${c.layer}\n10\n${c.x}\n20\n${-(c.y - 6)}\n40\n10\n1\n${c.tag} (${c.amp})\n`;
                 });
                 dxfContent += `0\nENDSEC\n0\nEOF`;
 
@@ -964,9 +1560,10 @@
             } else if (format === 'cad') {
                 // Custom JSON Project (.ecad)
                 const projectData = {
-                    version: '3.5',
+                    version: '3.6',
                     projectName: projectName,
                     components: placedComponents,
+                    shapes: drawnShapes,
                     layers: layers,
                     settings: { zoom, panX, panY, canvasTheme }
                 };
@@ -1026,15 +1623,17 @@
 
         // --- HISTORY UNDO / REDO ---
         function saveHistory() {
-            historyStack.push(JSON.stringify(placedComponents));
+            historyStack.push(JSON.stringify({ components: placedComponents, shapes: drawnShapes }));
             if (historyStack.length > 30) historyStack.shift();
             redoStack = [];
         }
 
         function undoCanvas() {
             if (historyStack.length === 0) return;
-            redoStack.push(JSON.stringify(placedComponents));
-            placedComponents = JSON.parse(historyStack.pop());
+            redoStack.push(JSON.stringify({ components: placedComponents, shapes: drawnShapes }));
+            const prev = JSON.parse(historyStack.pop());
+            placedComponents = prev.components || [];
+            drawnShapes = prev.shapes || [];
             clearSelection();
             updateBOM();
             showToast('Undo', 'Tindakan dibatalkan.');
@@ -1042,8 +1641,10 @@
 
         function redoCanvas() {
             if (redoStack.length === 0) return;
-            historyStack.push(JSON.stringify(placedComponents));
-            placedComponents = JSON.parse(redoStack.pop());
+            historyStack.push(JSON.stringify({ components: placedComponents, shapes: drawnShapes }));
+            const next = JSON.parse(redoStack.pop());
+            placedComponents = next.components || [];
+            drawnShapes = next.shapes || [];
             clearSelection();
             updateBOM();
             showToast('Redo', 'Tindakan diulang.');
