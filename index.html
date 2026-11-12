@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Electrical CAD Suite</title>
+    <!-- Tailwind CSS for modern UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; user-select: none; }
+        .grid-bg-dark {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+        }
+        .grid-bg-light {
+            background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+        }
+        .dot-grid-dark {
+            background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+        }
+        .dot-grid-light {
+            background-image: radial-gradient(rgba(0,0,0,0.15) 1px, transparent 1px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-800 border-b border-slate-700 h-14 flex items-center justify-between px-4 shrink-0 shadow-md z-20">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg font-bold flex items-center shadow">
+                <i class="fa-solid fa-bolt-lightning text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-sm sm:text-base tracking-wide text-slate-100 flex items-center gap-2">
+                    ElectroCAD Pro <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30">v3.5 Engine</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Professional Electrical Panel & Wiring Design Studio</p>
+            </div>
+        </div>
+
+        <!-- Center quick toolbar / project name -->
+        <div class="hidden md:flex items-center space-x-2 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-700/60">
+            <span class="text-xs text-slate-400">Project:</span>
+            <input type="text" id="projectName" value="Panel_Kontrol_Utama_01" class="bg-transparent text-xs font-medium text-slate-200 focus:outline-none w-48 border-b border-transparent focus:border-blue-500">
+            <span class="text-xs text-slate-500">|</span>
+            <span class="text-xs text-emerald-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Auto-Saved</span>
+        </div>
+
+        <!-- Top Right Actions -->
+        <div class="flex items-center space-x-2">
+            <!-- Layers button -->
+            <button onclick="toggleModal('layerModal')" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition border border-slate-600">
+                <i class="fa-solid fa-layer-group text-blue-400"></i> <span class="hidden sm:inline">Layers</span>
+            </button>
+            <!-- Canvas Settings -->
+            <button onclick="toggleModal('canvasModal')" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition border border-slate-600">
+                <i class="fa-solid fa-palette text-amber-400"></i> <span class="hidden sm:inline">Theme & Grid</span>
+            </button>
+            <!-- Export dropdown / Button -->
+            <div class="relative">
+                <button onclick="toggleExportMenu()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-lg shadow-blue-600/20">
+                    <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+                </button>
+                <div id="exportMenu" class="hidden absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-xl py-1 z-50">
+                    <button onclick="exportFile('png')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"><i class="fa-solid fa-file-image text-emerald-400"></i> Export PNG (HD)</button>
+                    <button onclick="exportFile('svg')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"><i class="fa-solid fa-file-code text-amber-400"></i> Export SVG Vector</button>
+                    <button onclick="exportFile('dxf')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"><i class="fa-solid fa-drafting-compass text-blue-400"></i> Export AutoCAD DXF</button>
+                    <button onclick="exportFile('cad')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"><i class="fa-solid fa-file-arrow-down text-purple-400"></i> Save Project (.ecad)</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Left Sidebar: Component Library & IEC Symbols -->
+        <aside class="w-72 bg-slate-800/90 border-r border-slate-700 flex flex-col shrink-0 z-10 shadow-lg">
+            <!-- Sidebar Header / Tabs -->
+            <div class="p-3 border-b border-slate-700 bg-slate-800">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                    <span><i class="fa-solid fa-shapes mr-1.5 text-blue-400"></i> Simbol Standar IEC / Panel</span>
+                </h2>
+                <!-- Search component -->
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchComponent" oninput="filterComponents(this.value)" placeholder="Cari komponen (MCB, Contagion...)" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+
+            <!-- Categories & Component List -->
+            <div id="componentList" class="flex-1 overflow-y-auto p-3 space-y-4">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+            <!-- Selected Component Inspector & Sizing Config -->
+            <div id="inspectorPanel" class="p-3 bg-slate-900/80 border-t border-slate-700 hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-sliders"></i> Pengaturan Komponen
+                    </h3>
+                    <button onclick="clearSelection()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div id="inspectorContent" class="space-y-2 text-xs">
+                    <!-- Dynamic properties -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Area: Toolbar & Interactive Canvas -->
+        <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
+            
+            <!-- Drawing Tool Floating Bar -->
+            <div class="absolute top-4 left-4 z-10 bg-slate-900/90 backdrop-blur border border-slate-700/80 p-1.5 rounded-xl shadow-xl flex items-center space-x-1">
+                <button onclick="setTool('select')" id="tool-select" title="Select & Move (V)" class="p-2 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-500 transition"><i class="fa-solid fa-arrow-pointer"></i></button>
+                <div class="w-[1px] h-5 bg-slate-700 mx-0.5"></div>
+                <button onclick="setTool('wire')" id="tool-wire" title="Kabel / Wiring Line (W)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-bolt"></i></button>
+                <button onclick="setTool('busbar')" id="tool-busbar" title="Busbar Utama (B)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-bars"></i></button>
+                <button onclick="setTool('cableduct')" id="tool-cableduct" title="Dak Kabel (D)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-square-full"></i></button>
+                <button onclick="setTool('terminal')" id="tool-terminal" title="Terminal Blok (T)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-th-large"></i></button>
+                <button onclick="setTool('text')" id="tool-text" title="Label / Teks (TXT)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-font"></i></button>
+                <div class="w-[1px] h-5 bg-slate-700 mx-0.5"></div>
+                <button onclick="undoCanvas()" title="Undo (Ctrl+Z)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-rotate-left"></i></button>
+                <button onclick="redoCanvas()" title="Redo (Ctrl+Y)" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-rotate-right"></i></button>
+                <button onclick="clearCanvas()" title="Reset / Clear Canvas" class="p-2 rounded-lg text-red-400 hover:bg-red-500/20 text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+
+            <!-- Zoom & Viewport Controls -->
+            <div class="absolute bottom-4 right-4 z-10 bg-slate-900/90 backdrop-blur border border-slate-700/80 p-1.5 rounded-xl shadow-xl flex items-center space-x-1">
+                <button onclick="zoomCanvas(0.1)" title="Zoom In" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                <span id="zoomLevelText" class="text-xs font-mono px-2 text-slate-300">100%</span>
+                <button onclick="zoomCanvas(-0.1)" title="Zoom Out" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                <div class="w-[1px] h-5 bg-slate-700 mx-0.5"></div>
+                <button onclick="resetZoom()" title="Reset View" class="p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition"><i class="fa-solid fa-compress"></i></button>
+                <button onclick="toggleGrid()" id="gridToggleBtn" title="Toggle Grid" class="p-2 rounded-lg text-blue-400 bg-blue-500/10 text-xs transition"><i class="fa-solid fa-border-all"></i></button>
+            </div>
+
+            <!-- Canvas Container -->
+            <div id="canvasContainer" class="flex-1 relative overflow-hidden cursor-crosshair grid-bg-dark" 
+                 onmousedown="startPan(event)" onmousemove="panCanvas(event)" onmouseup="endPan(event)" onwheel="handleZoom(event)"
+                 ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
+                <canvas id="cadCanvas" class="absolute top-0.5 left-0.5 block"></canvas>
+            </div>
+
+            <!-- Bottom Status Bar -->
+            <div class="bg-slate-900 border-t border-slate-800 px-4 py-1.5 flex items-center justify-between text-xs text-slate-400 shrink-0 z-10">
+                <div class="flex items-center space-x-4">
+                    <span id="statusTool" class="text-blue-400 font-medium">Tool: Select & Move</span>
+                    <span>|</span>
+                    <span id="statusCoords">X: 0, Y: 0</span>
+                    <span>|</span>
+                    <span id="statusCount">Komponen: 0</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-slate-500">Standard: IEC 60617 / IEEE 315</span>
+                    <span class="text-emerald-400 font-medium">Ready</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Inspector / Properties Panel for Layers & Quick stats -->
+        <aside class="w-64 bg-slate-800/90 border-l border-slate-700 hidden lg:flex flex-col shrink-0 z-10 shadow-lg">
+            <div class="p-3 border-b border-slate-700 bg-slate-800">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-pie text-emerald-400"></i> Spesifikasi & Bill of Materials
+                </h3>
+            </div>
+            <div class="flex-1 overflow-y-auto p-3 space-y-3 text-xs" id="bomContent">
+                <p class="text-slate-500 text-center py-8">Belum ada komponen ditambahkan ke panel.</p>
+            </div>
+            <div class="p-3 bg-slate-900/80 border-t border-slate-700">
+                <button onclick="generateBOMReport()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 rounded-lg text-xs transition flex items-center justify-center gap-2 border border-slate-600">
+                    <i class="fa-solid fa-file-excel text-emerald-400"></i> Unduh Rekap Material (BOM)
+                </button>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Modal Layers Management -->
+    <div id="layerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between bg-slate-800/50">
+                <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-blue-400"></i> Pengaturan Layer CAD
+                </h3>
+                <button onclick="toggleModal('layerModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-5 space-y-3" id="layerListContainer">
+                <!-- Dynamically rendered layers -->
+            </div>
+            <div class="px-5 py-3 bg-slate-900/60 border-t border-slate-700 flex justify-end">
+                <button onclick="toggleModal('layerModal')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">Simpan & Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Canvas & Theme Settings -->
+    <div id="canvasModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between bg-slate-800/50">
+                <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-amber-400"></i> Pengaturan Tampilan & Layar
+                </h3>
+                <button onclick="toggleModal('canvasModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-5 space-y-4 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1.5 font-medium">Tema Background Layar:</label>
+                    <select id="themeSelect" onchange="changeCanvasTheme(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option value="dark-grid">Dark Grid (Blue Tech)</option>
+                        <option value="dark-dot">Dark Dot Matrix</option>
+                        <option value="light-grid">Light Engineering Grid</option>
+                        <option value="pure-white">Pure White (Blueprint)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1.5 font-medium">Ukuran Kertas Standar Panel:</label>
+                    <select id="paperSizeSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option value="A3">A3 (420 x 297 mm) - Standard Panel</option>
+                        <option value="A4">A4 (297 x 210 mm) - Wiring Diagram</option>
+                        <option value="A2">A2 (594 x 420 mm) - Large Single Line</option>
+                        <option value="CUSTOM">Custom Canvas (Infinite)</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between pt-2">
+                    <span class="text-slate-300">Snap to Grid (Magnetik)</span>
+                    <input type="checkbox" id="snapGrid" checked class="w-4 h-4 accent-blue-600 rounded">
+                </div>
+            </div>
+            <div class="px-5 py-3 bg-slate-900/60 border-t border-slate-700 flex justify-end">
+                <button onclick="toggleModal('canvasModal')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">Terapkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-12 right-6 bg-slate-800 border border-slate-600 text-slate-100 px-4 py-2.5 rounded-xl shadow-2xl z-50 hidden flex items-center gap-3 transition-all transform translate-y-2">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <div>
+            <h4 id="toastTitle" class="text-xs font-bold">Berhasil</h4>
+            <p id="toastMsg" class="text-[11px] text-slate-300">Operasi berhasil dilakukan.</p>
+        </div>
+    </div>
+
+    <!-- Application Script Engine -->
+    <script>
+        // --- COMPONENT DATABASE (STANDAR INTERNASIONAL IEC) ---
+        const componentLibrary = [
+            {
+                category: "Pengaman & Pemutus (Protection)",
+                items: [
+                    { id: 'mcb1p', name: 'MCB 1 Phase', icon: 'fa-toggle-on', desc: 'Miniature Circuit Breaker 1P', defaultAmp: '16A', defaultBrand: 'Schneider', width: 40, height: 80, symbolType: 'mcb1' },
+                    { id: 'mcb3p', name: 'MCB 3 Phase', icon: 'fa-sliders', desc: 'Miniature Circuit Breaker 3P', defaultAmp: '32A', defaultBrand: 'ABB', width: 70, height: 80, symbolType: 'mcb3' },
+                    { id: 'mccb', name: 'MCCB', icon: 'fa-shield-halved', desc: 'Molded Case Circuit Breaker', defaultAmp: '100A', defaultBrand: 'Schneider', width: 90, height: 100, symbolType: 'mccb' },
+                    { id: 'acb', name: 'ACB', icon: 'fa-square', desc: 'Air Circuit Breaker', defaultAmp: '800A', defaultBrand: 'Siemens', width: 120, height: 120, symbolType: 'acb' },
+                    { id: 'fuse', name: 'Fuse / Sekering', icon: 'fa-bolt', desc: 'Cartridge Fuse Protection', defaultAmp: '10A', defaultBrand: 'Eaton', width: 30, height: 70, symbolType: 'fuse' }
+                ]
+            },
+            {
+                category: "Kontrol & Switching",
+                items: [
+                    { id: 'contactor', name: 'Kontaktor (LC1D)', icon: 'fa-cube', desc: 'Magnetic Contactor 3P + Aux', defaultAmp: '25A', defaultBrand: 'Schneider', width: 80, height: 90, symbolType: 'contactor' },
+                    { id: 'tor', name: 'TOR (Thermal Overload)', icon: 'fa-temperature-high', desc: 'Thermal Overload Relay', defaultAmp: '18-26A', defaultBrand: 'Schneider', width: 80, height: 70, symbolType: 'tor' },
+                    { id: 'relay', name: 'Control Relay (MY2N)', icon: 'fa-microchip', desc: 'Electromagnetic Relay 8 Pin', defaultAmp: '5A', defaultBrand: 'Omron', width: 50, height: 60, symbolType: 'relay' },
+                    { id: 'timer', name: 'Timer (DH48S)', icon: 'fa-clock', desc: 'Delay Timer Relay', defaultAmp: '5A', defaultBrand: 'Autonics', width: 50, height: 60, symbolType: 'timer' },
+                    { id: 'cos', name: 'COS (Change Over Switch)', icon: 'fa-rotate', desc: 'Manual Source Changeover', defaultAmp: '63A', defaultBrand: 'Salzer', width: 70, height: 70, symbolType: 'cos' },
+                    { id: 'selector', name: 'Selector Switch', icon: 'fa-circle-dot', desc: 'Hand-Off-Auto Selector', defaultAmp: '10A', defaultBrand: 'Schneider', width: 50, height: 50, symbolType: 'selector' }
+                ]
+            },
+            {
+                category: "Indikator & Operator",
+                items: [
+                    { id: 'pilot_lamp', name: 'Pilot Lamp (R/Y/G)', icon: 'fa-lightbulb', desc: 'LED Indicator Light 220V', defaultAmp: '20mA', defaultBrand: 'Schneider', width: 45, height: 45, symbolType: 'pilot' },
+                    { id: 'btn_on', name: 'Push Button ON', icon: 'fa-circle-play', desc: 'Green Momentary Start Button', defaultAmp: '10A', defaultBrand: 'Schneider', width: 45, height: 45, symbolType: 'btn_on' },
+                    { id: 'btn_off', name: 'Push Button OFF', icon: 'fa-circle-stop', desc: 'Red Momentary Stop Button', defaultAmp: '10A', defaultBrand: 'Schneider', width: 45, height: 45, symbolType: 'btn_off' },
+                    { id: 'btn_onoff', name: 'Push Button ON-OFF', icon: 'fa-circle-half-stroke', desc: 'Double Push Button Unit', defaultAmp: '10A', defaultBrand: 'Schneider', width: 50, height: 70, symbolType: 'btn_onoff' },
+                    { id: 'emergency', name: 'Emergency Stop', icon: 'fa-triangle-exclamation', desc: 'Red Mushroom Latch Switch', defaultAmp: '10A', defaultBrand: 'Schneider', width: 60, height: 60, symbolType: 'emergency' }
+                ]
+            },
+            {
+                category: "Aksesoris & Panel",
+                items: [
+                    { id: 'metering', name: 'Digital Meter / PM', icon: 'fa-gauge-high', desc: 'Power Meter V/A/Hz/kWh', defaultAmp: '5A/CT', defaultBrand: 'Schneider', width: 90, height: 90, symbolType: 'meter' },
+                    { id: 'busbar', name: 'Busbar Tembaga', icon: 'fa-bars-staggered', desc: 'Main Distribution Busbar R/S/T/N', defaultAmp: '200A', defaultBrand: 'Local Cu', width: 120, height: 30, symbolType: 'busbar_comp' },
+                    { id: 'cableduct', name: 'Dak Kabel (Cable Duct)', icon: 'fa-square-full', PVC: 'Slotted Cable Duct', defaultAmp: '-', defaultBrand: 'Dexta', width: 140, height: 40, symbolType: 'duct' },
+                    { id: 'terminal', name: 'Terminal Blok', icon: 'fa-braille', desc: 'DIN Rail Terminal Feed-through', defaultAmp: '32A', defaultBrand: 'Phoenix Contact', width: 70, height: 30, symbolType: 'terminal' },
+                    { id: 'kabel', name: 'Kabel / Wiring Line', icon: 'fa-wave-square', desc: 'NYY / NYAF Flexible Wire', defaultAmp: '2.5mm²', defaultBrand: 'Supreme', width: 100, height: 20, symbolType: 'cable' }
+                ]
+            }
+        ];
+
+        // --- APPLICATION STATE ---
+        let canvas, ctx;
+        let currentTool = 'select'; // select, wire, busbar, cableduct, terminal, text
+        let canvasTheme = 'dark-grid';
+        let isPanning = false;
+        let startX = 0, startY = 0;
+        let panX = 0, panY = 0;
+        let zoom = 1;
+        let gridEnabled = true;
+
+        let placedComponents = []; // Array of elements on canvas
+        let selectedComponent = null;
+        let isDraggingComponent = false;
+        let dragOffsetX = 0, dragOffsetY = 0;
+
+        let historyStack = [];
+        let redoStack = [];
+
+        // Layers configuration
+        let layers = [
+            { id: 'layer-main', name: '01. Utama / Power Line', color: '#3b82f6', visible: true, locked: false },
+            { id: 'layer-control', name: '02. Kontrol & Relay', color: '#10b981', visible: true, locked: false },
+            { id: 'layer-busbar', name: '03. Busbar & Distribusi', color: '#f59e0b', visible: true, locked: false },
+            { id: 'layer-text', name: '04. Label & Text / Tag', color: '#a855f7', visible: true, locked: false }
+        ];
+
+        // Brands and Amps options for dropdowns
+        const availableBrands = ['Schneider', 'ABB', 'Siemens', 'Omron', 'Eaton', 'Schneider Electric', 'LS Electric', 'Chint'];
+        const availableAmps = ['2A', '4A', '6A', '10A', '16A', '20A', '25A', '32A', '40A', '50A', '63A', '80A', '100A', '125A', '160A', '200A', '250A', '400A', '630A', '800A'];
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            canvas = document.getElementById('cadCanvas');
+            ctx = canvas.getContext('2d');
+            
+            resizeCanvasContainer();
+            window.addEventListener('resize', resizeCanvasContainer);
+
+            renderComponentLibrary();
+            renderLayerList();
+            setupKeyboardShortcuts();
+
+            // Initial draw loop
+            requestAnimationFrame(mainLoop);
+        };
+
+        function resizeCanvasContainer() {
+            const container = document.getElementById('canvasContainer');
+            canvas.width = container.clientWidth * 2; // Retina sharpness
+            canvas.height = container.clientHeight * 2;
+            canvas.style.width = container.clientWidth + 'px';
+            canvas.style.height = container.clientHeight + 'px';
+            ctx.scale(2, 2);
+        }
+
+        // --- RENDER COMPONENT LIBRARY ---
+        function renderComponentLibrary(filter = '') {
+            const container = document.getElementById('componentList');
+            container.innerHTML = '';
+
+            componentLibrary.forEach(cat => {
+                const filteredItems = cat.items.filter(item => 
+                    item.name.toLowerCase().includes(filter.toLowerCase()) || 
+                    item.desc.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                if (filteredItems.length === 0) return;
+
+                const catDiv = document.createElement('div');
+                catDiv.className = 'space-y-1.5';
+                catDiv.innerHTML = `<h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1">${cat.category}</h3>`;
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid grid-cols-1 gap-1.5';
+
+                filteredItems.forEach(item => {
+                    const btn = document.createElement('div');
+                    btn.className = 'bg-slate-900/70 hover:bg-slate-700/80 border border-slate-700/70 hover:border-blue-500/60 p-2 rounded-lg cursor-pointer transition flex items-center justify-between group';
+                    btn.innerHTML = `
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-slate-800 text-blue-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
+                                <i class="fa-solid ${item.icon} text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-slate-200">${item.name}</h4>
+                                <p class="text-[10px] text-slate-400 truncate max-w-[140px]">${item.desc}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700 group-hover:border-blue-400">${item.defaultAmp || 'IEC'}</span>
+                    `;
+                    btn.onclick = () => addComponentToCanvas(item);
+                    gridDiv.appendChild(btn);
+                });
+
+                catDiv.appendChild(gridDiv);
+                container.appendChild(catDiv);
+            });
+        }
+
+        function filterComponents(val) {
+            renderComponentLibrary(val);
+        }
+
+        // --- ADD COMPONENT TO CANVAS ---
+        function addComponentToCanvas(item) {
+            saveHistory();
+            const newComp = {
+                id: 'comp_' + Date.now() + Math.floor(Math.random()*1000),
+                type: item.symbolType,
+                name: item.name,
+                tag: item.name.substring(0,3).toUpperCase() + '-' + (placedComponents.length + 1),
+                amp: item.defaultAmp || '16A',
+                brand: item.defaultBrand || 'Schneider',
+                x: 100 + (placedComponents.length * 15) % 300,
+                y: 100 + (placedComponents.length * 15) % 250,
+                width: item.width,
+                height: item.height,
+                layer: 'layer-main',
+                color: '#3b82f6'
+            };
+            placedComponents.push(newComp);
+            selectComponent(newComp);
+            showToast('Komponen Ditambahkan', `${item.name} berhasil ditambahkan ke lembar kerja.`);
+            updateBOM();
+        }
+
+        // --- MAIN ANIMATION & DRAW LOOP ---
+        function mainLoop() {
+            drawCanvas();
+            requestAnimationFrame(mainLoop);
+        }
+
+        function drawCanvas() {
+            const container = document.getElementById('canvasContainer');
+            ctx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+
+            ctx.save();
+            ctx.translate(panX, panY);
+            ctx.scale(zoom, zoom);
+
+            // Draw Grid if enabled
+            if (gridEnabled) {
+                drawGrid(container.clientWidth, container.clientHeight);
+            }
+
+            // Draw all placed components
+            placedComponents.forEach(comp => {
+                drawIECSymbol(comp);
+            });
+
+            ctx.restore();
+        }
+
+        function drawGrid(w, h) {
+            ctx.strokeStyle = canvasTheme.includes('dark') ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)';
+            ctx.lineWidth = 1;
+            const gridSize = 30 * zoom;
+            const startXGrid = panX % gridSize;
+            const startYGrid = panY % gridSize;
+
+            ctx.beginPath();
+            for (let x = startXGrid; x < w * 2; x += gridSize) {
+                ctx.moveTo((x - panX) / zoom, 0);
+                ctx.lineTo((x - panX) / zoom, h * 2);
+            }
+            for (let y = startYGrid; y < h * 2; y += gridSize) {
+                ctx.moveTo(0, (y - panY) / zoom);
+                ctx.lineTo(w * 2, (y - panY) / zoom);
+            }
+            ctx.stroke();
+        }
+
+        // --- DRAW IEC SYMBOLS ON CANVAS ---
+        function drawIECSymbol(comp) {
+            ctx.save();
+            ctx.translate(comp.x, comp.y);
+
+            // Selection glow / box
+            if (selectedComponent && selectedComponent.id === comp.id) {
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(-6, -6, comp.width + 12, comp.height + 12);
+                ctx.setLineDash([]);
+            }
+
+            // Component background box
+            ctx.fillStyle = canvasTheme.includes('dark') ? '#1e293b' : '#ffffff';
+            ctx.strokeStyle = selectedComponent && selectedComponent.id === comp.id ? '#60a5fa' : '#475569';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, comp.width, comp.height, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            // Inner graphic based on type
+            ctx.fillStyle = canvasTheme.includes('dark') ? '#94a3b8' : '#334155';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'center';
+
+            // Top Tag / Label
+            ctx.fillStyle = '#60a5fa';
+            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.fillText(comp.tag, comp.width / 2, -10);
+
+            // Bottom Brand & Amp
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '9px Inter, sans-serif';
+            ctx.fillText(`${comp.brand} • ${comp.amp}`, comp.width / 2, comp.height + 14);
+
+            // Specific IEC Symbol sketches inside box
+            ctx.strokeStyle = canvasTheme.includes('dark') ? '#38bdf8' : '#2563eb';
+            ctx.lineWidth = 2;
+
+            if (comp.type === 'mcb1' || comp.type === 'mcb3') {
+                // MCB Symbol (Switch contact with thermal/magnetic release)
+                ctx.beginPath();
+                ctx.moveTo(comp.width/2, 10);
+                ctx.lineTo(comp.width/2, comp.height - 10);
+                ctx.stroke();
+                // Toggle handle
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(comp.width/2 - 6, comp.height/2 - 8, 12, 16);
+            } else if (comp.type === 'contactor') {
+                // Contactor coil box & contacts
+                ctx.strokeRect(10, 15, comp.width - 20, comp.height - 30);
+                ctx.fillText('A1-A2', comp.width/2, comp.height/2 + 4);
+            } else if (comp.type === 'pilot') {
+                // Pilot lamp circle
+                ctx.beginPath();
+                ctx.arc(comp.width/2, comp.height/2, 14, 0, Math.PI * 2);
+                ctx.fillStyle = '#22c55e';
+                ctx.fill();
+                ctx.stroke();
+            } else if (comp.type === 'emergency') {
+                // Mushroom emergency button
+                ctx.beginPath();
+                ctx.arc(comp.width/2, comp.height/2, 18, 0, Math.PI * 2);
+                ctx.fillStyle = '#dc2626';
+                ctx.fill();
+                ctx.stroke();
+            } else {
+                // Generic electrical block icon
+                ctx.strokeRect(10, 10, comp.width - 20, comp.height - 20);
+                ctx.fillText(comp.type.toUpperCase(), comp.width/2, comp.height/2 + 4);
+            }
+
+            ctx.restore();
+        }
+
+        // --- MOUSE & INTERACTION HANDLING ---
+        function startPan(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left);
+            const mouseY = (e.clientY - rect.top);
+
+            const worldX = (mouseX - panX) / zoom;
+            const worldY = (mouseY - panY) / zoom;
+
+            // Check if clicking on a component
+            let clickedComp = null;
+            for (let i = placedComponents.length - 1; i >= 0; i--) {
+                const c = placedComponents[i];
+                if (worldX >= c.x && worldX <= c.x + c.width && worldY >= c.y && worldY <= c.y + c.height) {
+                    clickedComp = c;
+                    break;
+                }
+            }
+
+            if (clickedComp) {
+                selectComponent(clickedComp);
+                if (currentTool === 'select') {
+                    isDraggingComponent = true;
+                    dragOffsetX = worldX - clickedComp.x;
+                    dragOffsetY = worldY - clickedComp.y;
+                }
+            } else {
+                if (currentTool === 'select') {
+                    selectComponent(null);
+                    isPanning = true;
+                    startX = e.clientX - panX;
+                    startY = e.clientY - panY;
+                }
+            }
+        }
+
+        function panCanvas(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = (e.clientX - rect.left);
+            const mouseY = (e.clientY - rect.top);
+
+            const worldX = (mouseX - panX) / zoom;
+            const worldY = (mouseY - panY) / zoom;
+
+            document.getElementById('statusCoords').innerText = `X: ${Math.round(worldX)}, Y: ${Math.round(worldY)}`;
+
+            if (isDraggingComponent && selectedComponent) {
+                selectedComponent.x = worldX - dragOffsetX;
+                selectedComponent.y = worldY - dragOffsetY;
+            } else if (isPanning) {
+                panX = e.clientX - startX;
+                panY = e.clientY - startY;
+            }
+        }
+
+        function endPan() {
+            if (isDraggingComponent) {
+                saveHistory();
+            }
+            isPanning = false;
+            isDraggingComponent = false;
+        }
+
+        // --- MOBILE TOUCH GESTURES (PINCH TO ZOOM & PAN) ---
+        let touchStartDist = 0;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+
+        function handleTouchStart(e) {
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const touchX = touch.clientX - rect.left;
+                const touchY = touch.clientY - rect.top;
+
+                const worldX = (touchX - panX) / zoom;
+                const worldY = (touchY - panY) / zoom;
+
+                let clickedComp = null;
+                for (let i = placedComponents.length - 1; i >= 0; i--) {
+                    const c = placedComponents[i];
+                    if (worldX >= c.x && worldX <= c.x + c.width && worldY >= c.y && worldY <= c.y + c.height) {
+                        clickedComp = c;
+                        break;
+                    }
+                }
+
+                if (clickedComp) {
+                    selectComponent(clickedComp);
+                    isDraggingComponent = true;
+                    dragOffsetX = worldX - clickedComp.x;
+                    dragOffsetY = worldY - clickedComp.y;
+                } else {
+                    selectComponent(null);
+                    isPanning = true;
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                }
+            } else if (e.touches.length === 2) {
+                isPanning = false;
+                isDraggingComponent = false;
+                touchStartDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const touchX = touch.clientX - rect.left;
+                const touchY = touch.clientY - rect.top;
+                const worldX = (touchX - panX) / zoom;
+                const worldY = (touchY - panY) / zoom;
+
+                document.getElementById('statusCoords').innerText = `X: ${Math.round(worldX)}, Y: ${Math.round(worldY)}`;
+
+                if (isDraggingComponent && selectedComponent) {
+                    selectedComponent.x = worldX - dragOffsetX;
+                    selectedComponent.y = worldY - dragOffsetY;
+                } else if (isPanning) {
+                    const dx = touch.clientX - lastTouchX;
+                    const dy = touch.clientY - lastTouchY;
+                    panX += dx;
+                    panY += dy;
+                    lastTouchX = touch.clientX;
+                    lastTouchY = touch.clientY;
+                }
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                if (touchStartDist > 0) {
+                    const factor = dist / touchStartDist;
+                    zoom = Math.min(Math.max(zoom * (factor > 1 ? 1.02 : 0.98), 0.3), 3.0);
+                    document.getElementById('zoomLevelText').innerText = Math.round(zoom * 100) + '%';
+                }
+                touchStartDist = dist;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (isDraggingComponent) {
+                saveHistory();
+            }
+            isPanning = false;
+            isDraggingComponent = false;
+            touchStartDist = 0;
+        }
+
+        function handleZoom(e) {
+            e.preventDefault();
+            const zoomIntensity = 0.1;
+            if (e.deltaY < 0) {
+                zoom = Math.min(zoom + zoomIntensity, 3.0);
+            } else {
+                zoom = Math.max(zoom - zoomIntensity, 0.3);
+            }
+            document.getElementById('zoomLevelText').innerText = Math.round(zoom * 100) + '%';
+        }
+
+        function zoomCanvas(amount) {
+            zoom = Math.min(Math.max(zoom + amount, 0.3), 3.0);
+            document.getElementById('zoomLevelText').innerText = Math.round(zoom * 100) + '%';
+        }
+
+        function resetZoom() {
+            zoom = 1.0;
+            panX = 0;
+            panY = 0;
+            document.getElementById('zoomLevelText').innerText = '100%';
+        }
+
+        function toggleGrid() {
+            gridEnabled = !gridEnabled;
+            const btn = document.getElementById('gridToggleBtn');
+            if (gridEnabled) {
+                btn.className = 'p-2 rounded-lg text-blue-400 bg-blue-500/10 text-xs transition';
+                showToast('Grid Diaktifkan', 'Grid magnetik CAD diaktifkan.');
+            } else {
+                btn.className = 'p-2 rounded-lg text-slate-400 hover:bg-slate-800 text-xs transition';
+                showToast('Grid Dinonaktifkan', 'Grid CAD disembunyikan.');
+            }
+        }
+
+        // --- TOOL SELECTION ---
+        function setTool(toolName) {
+            currentTool = toolName;
+            ['select', 'wire', 'busbar', 'cableduct', 'terminal', 'text'].forEach(t => {
+                const btn = document.getElementById('tool-' + t);
+                if (btn) {
+                    if (t === toolName) {
+                        btn.className = 'p-2 rounded-lg bg-blue-600 text-white text-xs transition';
+                    } else {
+                        btn.className = 'p-2 rounded-lg text-slate-300 hover:bg-slate-800 text-xs transition';
+                    }
+                }
+            });
+            const toolNamesMap = {
+                select: 'Select & Move',
+                wire: 'Wiring Cable Line',
+                busbar: 'Busbar Utama',
+                cableduct: 'Dak Kabel',
+                terminal: 'Terminal Blok',
+                text: 'Label / Teks'
+            };
+            document.getElementById('statusTool').innerText = `Tool: ${toolNamesMap[toolName] || toolName}`;
+        }
+
+        // --- INSPECTOR PANEL & COMPONENT CONFIG ---
+        function selectComponent(comp) {
+            selectedComponent = comp;
+            const inspector = document.getElementById('inspectorPanel');
+            const content = document.getElementById('inspectorContent');
+
+            if (!comp) {
+                inspector.classList.add('hidden');
+                return;
+            }
+
+            inspector.classList.remove('hidden');
+
+            let brandOptions = availableBrands.map(b => `<option value="${b}" ${comp.brand === b ? 'selected' : ''}>${b}</option>`).join('');
+            let ampOptions = availableAmps.map(a => `<option value="${a}" ${comp.amp === a ? 'selected' : ''}>${a}</option>`).join('');
+
+            content.innerHTML = `
+                <div>
+                    <label class="block text-slate-400 mb-1">Tag / Kode:</label>
+                    <input type="text" value="${comp.tag}" oninput="updateCompProperty('tag', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Kapasitas (Amper/Ukuran):</label>
+                    <select onchange="updateCompProperty('amp', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+                        ${ampOptions}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Merek Komponen:</label>
+                    <select onchange="updateCompProperty('brand', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+                        ${brandOptions}
+                    </select>
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button onclick="duplicateSelected()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded text-xs transition"><i class="fa-solid fa-copy mr-1"></i> Duplikat</button>
+                    <button onclick="deleteSelected()" class="flex-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 py-1.5 rounded text-xs transition"><i class="fa-solid fa-trash mr-1"></i> Hapus</button>
+                </div>
+            `;
+            updateBOM();
+        }
+
+        function clearSelection() {
+            selectedComponent = null;
+            document.getElementById('inspectorPanel').classList.add('hidden');
+        }
+
+        function updateCompProperty(prop, val) {
+            if (selectedComponent) {
+                selectedComponent[prop] = val;
+                updateBOM();
+            }
+        }
+
+        function duplicateSelected() {
+            if (!selectedComponent) return;
+            saveHistory();
+            const dup = {
+                ...selectedComponent,
+                id: 'comp_' + Date.now(),
+                x: selectedComponent.x + 20,
+                y: selectedComponent.y + 20,
+                tag: selectedComponent.tag.split('-')[0] + '-' + (placedComponents.length + 1)
+            };
+            placedComponents.push(dup);
+            selectComponent(dup);
+            updateBOM();
+            showToast('Duplikasi Berhasil', 'Komponen berhasil disalin.');
+        }
+
+        function deleteSelected() {
+            if (!selectedComponent) return;
+            saveHistory();
+            placedComponents = placedComponents.filter(c => c.id !== selectedComponent.id);
+            clearSelection();
+            updateBOM();
+            showToast('Komponen Dihapus', 'Komponen dihapus dari lembar kerja.');
+        }
+
+        function clearCanvas() {
+            if (confirm('Apakah Anda yakin ingin mereset seluruh lembar kerja CAD?')) {
+                saveHistory();
+                placedComponents = [];
+                clearSelection();
+                updateBOM();
+                showToast('Canvas Direset', 'Semua komponen dibersihkan.');
+            }
+        }
+
+        // --- BILL OF MATERIALS (BOM) ---
+        function updateBOM() {
+            const bomContainer = document.getElementById('bomContent');
+            document.getElementById('statusCount').innerText = `Komponen: ${placedComponents.length}`;
+
+            if (placedComponents.length === 0) {
+                bomContainer.innerHTML = '<p class="text-slate-500 text-center py-8">Belum ada komponen ditambahkan ke panel.</p>';
+                return;
+            }
+
+            // Group by type & brand
+            const counts = {};
+            placedComponents.forEach(c => {
+                const key = `${c.name} (${c.brand} - ${c.amp})`;
+                counts[key] = (counts[key] || 0) + 1;
+            });
+
+            let html = '<div class="space-y-2">';
+            for (let [itemKey, qty] of Object.entries(counts)) {
+                html += `
+                    <div class="bg-slate-900/70 border border-slate-700/60 p-2 rounded-lg flex items-center justify-between">
+                        <div>
+                            <h4 class="font-medium text-slate-200 text-[11px]">${itemKey}</h4>
+                        </div>
+                        <span class="bg-blue-600/20 text-blue-400 font-bold px-2 py-0.5 rounded text-[10px] border border-blue-500/30">${qty} pcs</span>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            bomContainer.innerHTML = html;
+        }
+
+        function generateBOMReport() {
+            if (placedComponents.length === 0) {
+                showToast('Peringatan', 'Tidak ada material untuk diexport.', 'error');
+                return;
+            }
+            let csv = 'No,Nama Komponen,Tag,Kapasitas,Merek\n';
+            placedComponents.forEach((c, index) => {
+                csv += `${index + 1},"${c.name}","${c.tag}","${c.amp}","${c.brand}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${document.getElementById('projectName').value}_BOM.csv`;
+            a.click();
+            showToast('BOM Diunduh', 'Rekapitulasi Material (BOM) berhasil diunduh dalam format Excel/CSV.');
+        }
+
+        // --- EXPORT FUNCTIONS (PNG, SVG, DXF, ECAD) ---
+        function toggleExportMenu() {
+            const menu = document.getElementById('exportMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function exportFile(format) {
+            toggleExportMenu();
+            const projectName = document.getElementById('projectName').value || 'Electrical_Design';
+
+            if (format === 'png') {
+                // High resolution PNG export
+                const dataURL = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = dataURL;
+                a.download = `${projectName}_HD.png`;
+                a.click();
+                showToast('Export PNG Berhasil', 'Gambar resolusi tinggi berhasil diunduh.');
+            } else if (format === 'svg') {
+                // SVG Vector Export
+                let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" style="background:#0f172a;">`;
+                svgContent += `<g transform="translate(${panX}, ${panY}) scale(${zoom})">`;
+                placedComponents.forEach(c => {
+                    svgContent += `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>`;
+                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y - 8}" fill="#60a5fa" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold">${c.tag}</text>`;
+                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y + c.height/2 + 4}" fill="#ffffff" font-family="sans-serif" font-size="11" text-anchor="middle">${c.name}</text>`;
+                    svgContent += `<text x="${c.x + c.width/2}" y="${c.y + c.height + 15}" fill="#94a3b8" font-family="sans-serif" font-size="9" text-anchor="middle">${c.brand} • ${c.amp}</text>`;
+                });
+                svgContent += `</g></svg>`;
+
+                const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}.svg`;
+                a.click();
+                showToast('Export SVG Berhasil', 'File vector SVG berhasil diunduh.');
+            } else if (format === 'dxf') {
+                // AutoCAD DXF format simulation
+                let dxfContent = `0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nTABLES\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
+                placedComponents.forEach(c => {
+                    dxfContent += `0\nRECT\n8\n${c.layer}\n10\n${c.x}\n20\n${c.y}\n11\n${c.x + c.width}\n21\n${c.y + c.height}\n`;
+                });
+                dxfContent += `0\nENDSEC\n0\nEOF`;
+
+                const blob = new Blob([dxfContent], { type: 'application/dxf;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}.dxf`;
+                a.click();
+                showToast('Export AutoCAD DXF Berhasil', 'File CAD DXF komprehensif berhasil diunduh.');
+            } else if (format === 'cad') {
+                // Custom JSON Project (.ecad)
+                const projectData = {
+                    version: '3.5',
+                    projectName: projectName,
+                    components: placedComponents,
+                    layers: layers,
+                    settings: { zoom, panX, panY, canvasTheme }
+                };
+                const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}.ecad`;
+                a.click();
+                showToast('Project Disimpan', 'File project CAD berhasil diunduh.');
+            }
+        }
+
+        // --- LAYER MANAGEMENT ---
+        function renderLayerList() {
+            const container = document.getElementById('layerListContainer');
+            container.innerHTML = '';
+            layers.forEach(l => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-900 border border-slate-700/70 p-3 rounded-xl flex items-center justify-between';
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <input type="color" value="${l.color}" onchange="updateLayerColor('${l.id}', this.value)" class="w-6 h-6 rounded border-0 cursor-pointer bg-transparent">
+                        <span class="text-xs font-semibold text-slate-200">${l.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="toggleLayerVisibility('${l.id}')" class="p-1.5 rounded bg-slate-800 text-slate-300 hover:text-white transition"><i class="fa-solid ${l.visible ? 'fa-eye text-blue-400' : 'fa-eye-slash text-slate-500'}"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateLayerColor(id, color) {
+            const l = layers.find(x => x.id === id);
+            if (l) l.color = color;
+        }
+
+        function toggleLayerVisibility(id) {
+            const l = layers.find(x => x.id === id);
+            if (l) {
+                l.visible = !l.visible;
+                renderLayerList();
+            }
+        }
+
+        function changeCanvasTheme(theme) {
+            canvasTheme = theme;
+            const container = document.getElementById('canvasContainer');
+            container.className = 'flex-1 relative overflow-hidden cursor-crosshair ';
+            if (theme === 'dark-grid') container.classList.add('grid-bg-dark', 'bg-slate-950');
+            else if (theme === 'dark-dot') container.classList.add('dot-grid-dark', 'bg-slate-950');
+            else if (theme === 'light-grid') container.classList.add('grid-bg-light', 'bg-slate-100');
+            else container.classList.add('bg-white');
+            showToast('Tema Diubah', 'Tampilan layar CAD diperbarui.');
+        }
+
+        // --- HISTORY UNDO / REDO ---
+        function saveHistory() {
+            historyStack.push(JSON.stringify(placedComponents));
+            if (historyStack.length > 30) historyStack.shift();
+            redoStack = [];
+        }
+
+        function undoCanvas() {
+            if (historyStack.length === 0) return;
+            redoStack.push(JSON.stringify(placedComponents));
+            placedComponents = JSON.parse(historyStack.pop());
+            clearSelection();
+            updateBOM();
+            showToast('Undo', 'Tindakan dibatalkan.');
+        }
+
+        function redoCanvas() {
+            if (redoStack.length === 0) return;
+            historyStack.push(JSON.stringify(placedComponents));
+            placedComponents = JSON.parse(redoStack.pop());
+            clearSelection();
+            updateBOM();
+            showToast('Redo', 'Tindakan diulang.');
+        }
+
+        // --- KEYBOARD SHORTCUTS ---
+        function setupKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                
+                if (e.ctrlKey && e.key === 'z') {
+                    e.preventDefault();
+                    undoCanvas();
+                } else if (e.ctrlKey && e.key === 'y') {
+                    e.preventDefault();
+                    redoCanvas();
+                } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                    deleteSelected();
+                } else if (e.key === 'v') {
+                    setTool('select');
+                } else if (e.key === 'w') {
+                    setTool('wire');
+                } else if (e.key === 'b') {
+                    setTool('busbar');
+                }
+            });
+        }
+
+        // --- MODAL TOGGLE & TOAST ---
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.toggle('hidden');
+        }
+
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMsg').innerText = message;
+            
+            const icon = document.getElementById('toastIcon');
+            if (type === 'success') {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-base';
+            } else {
+                icon.className = 'fa-solid fa-triangle-exclamation text-amber-400 text-base';
+            }
+
+            toast.classList.remove('hidden', 'translate-y-2');
+            setTimeout(() => {
+                toast.classList.add('translate-y-2');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
